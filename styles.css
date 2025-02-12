@@ -99,9 +99,15 @@ button:hover {
     border-radius: 4px;
 }
 
+.header-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
 .result-section h3 {
     color: #202124;
-    margin-bottom: 0.75rem;
     font-size: 1rem;
     font-weight: 500;
 }
