@@ -8,7 +8,151 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
     <style>
-        /* ... (previous styles remain the same) ... */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #202124;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1px;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #dadce0;
+            border-bottom: none;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: #5f6368;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .tab:hover {
+            background-color: #f1f3f4;
+        }
+
+        .tab.active {
+            color: #1a73e8;
+            border-bottom: 2px solid #1a73e8;
+        }
+
+        .tab-content {
+            display: none;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #dadce0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .results {
+            margin-top: 1.5rem;
+        }
+
+        .result-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .result-section h3 {
+            color: #202124;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .found {
+            background-color: #e6f4ea;
+        }
+
+        .not-found {
+            background-color: #fce8e6;
+        }
+
+        .transaction-list {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .copy-button {
+            background-color: transparent;
+            color: #1a73e8;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border: 1px solid #1a73e8;
+        }
+
+        .copy-button:hover {
+            background-color: #f1f3f4;
+        }
     </style>
 </head>
 <body>
@@ -47,7 +191,6 @@
                 appId: "YOUR_APP_ID"
             };
 
-            // Check if Firebase is already initialized
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
@@ -55,7 +198,6 @@
             db = firebase.database();
             transactionsRef = db.ref('transactions');
             
-            // Test the connection
             db.ref('.info/connected').on('value', (snap) => {
                 if (snap.val() === true) {
                     console.log('Connected to Firebase');
@@ -74,6 +216,14 @@
             
             document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
             document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // You could add a visual feedback here if desired
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
         }
         
         async function searchTransactions() {
@@ -99,16 +249,33 @@
                 }
                 
                 const results = document.getElementById('searchResults');
-                results.innerHTML = `
+                
+                // Reimbursed transactions
+                const foundHtml = `
                     <div class="result-section found">
                         <h3>Reimbursed (${found.length})</h3>
                         <div class="transaction-list">${found.join('\n') || 'None'}</div>
                     </div>
+                `;
+
+                // Not reimbursed transactions with copy buttons
+                const notFoundItems = notFound.map(id => `
+                    <div class="transaction-item">
+                        <span>${id}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${id}')">Copy</button>
+                    </div>
+                `).join('');
+
+                const notFoundHtml = `
                     <div class="result-section not-found">
                         <h3>Not Reimbursed (${notFound.length})</h3>
-                        <div class="transaction-list">${notFound.join('\n') || 'None'}</div>
+                        <div class="transaction-list">
+                            ${notFoundItems || 'None'}
+                        </div>
                     </div>
                 `;
+
+                results.innerHTML = foundHtml + notFoundHtml;
             } catch (error) {
                 console.error('Search error:', error);
                 alert('Error searching transactions: ' + error.message);
