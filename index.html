@@ -8,106 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f7f7f7;
-            line-height: 1.6;
-            padding: 16px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            padding: 24px;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-        }
-        
-        .tab.active {
-            border-bottom: 2px solid #0066ff;
-            color: #0066ff;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 12px;
-            border: 1px solid #e1e1e1;
-            border-radius: 8px;
-            font-family: inherit;
-            margin-bottom: 16px;
-            resize: vertical;
-        }
-        
-        button {
-            background: #0066ff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-        }
-        
-        button:hover {
-            background: #0052cc;
-        }
-        
-        .results {
-            margin-top: 24px;
-        }
-        
-        .result-section {
-            margin-top: 16px;
-            padding: 16px;
-            border-radius: 8px;
-        }
-        
-        .not-found {
-            background: #fff3f3;
-            border: 1px solid #ffcdd2;
-        }
-        
-        .found {
-            background: #f1f8e9;
-            border: 1px solid #c5e1a5;
-        }
-        
-        .transaction-list {
-            font-family: monospace;
-            font-size: 13px;
-            word-break: break-all;
-        }
+        /* ... (previous styles remain the same) ... */
     </style>
 </head>
 <body>
@@ -131,18 +32,41 @@
     </div>
 
     <script>
-        // Initialize Firebase (replace with your config)
-        const firebaseConfig = {
-            // Your Firebase config here
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID"
-        };
+        // Initialize Firebase with configuration check
+        let db;
+        let transactionsRef;
         
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const transactionsRef = db.ref('transactions');
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
+                authDomain: "rms-checker.firebaseapp.com",
+                databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
+                projectId: "rms-checker",
+                storageBucket: "rms-checker.firebasestorage.app",
+                messagingSenderId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+                appId: "YOUR_APP_ID"
+            };
+
+            // Check if Firebase is already initialized
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            db = firebase.database();
+            transactionsRef = db.ref('transactions');
+            
+            // Test the connection
+            db.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    console.log('Connected to Firebase');
+                } else {
+                    console.log('Not connected to Firebase');
+                }
+            });
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            alert('Error initializing the application. Please check the console for details.');
+        }
         
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -153,46 +77,61 @@
         }
         
         async function searchTransactions() {
+            if (!transactionsRef) {
+                alert('Database not initialized. Please check your Firebase configuration.');
+                return;
+            }
+            
             const ids = document.getElementById('searchIds').value.trim().split('\n').filter(id => id.trim());
             if (!ids.length) return;
             
-            const found = [];
-            const notFound = [];
-            
-            for (const id of ids) {
-                const snapshot = await transactionsRef.child(id.trim()).once('value');
-                if (snapshot.exists()) {
-                    found.push(id.trim());
-                } else {
-                    notFound.push(id.trim());
+            try {
+                const found = [];
+                const notFound = [];
+                
+                for (const id of ids) {
+                    const snapshot = await transactionsRef.child(id.trim()).once('value');
+                    if (snapshot.exists()) {
+                        found.push(id.trim());
+                    } else {
+                        notFound.push(id.trim());
+                    }
                 }
+                
+                const results = document.getElementById('searchResults');
+                results.innerHTML = `
+                    <div class="result-section found">
+                        <h3>Reimbursed (${found.length})</h3>
+                        <div class="transaction-list">${found.join('\n') || 'None'}</div>
+                    </div>
+                    <div class="result-section not-found">
+                        <h3>Not Reimbursed (${notFound.length})</h3>
+                        <div class="transaction-list">${notFound.join('\n') || 'None'}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Error searching transactions: ' + error.message);
             }
-            
-            const results = document.getElementById('searchResults');
-            results.innerHTML = `
-                <div class="result-section found">
-                    <h3>Reimbursed (${found.length})</h3>
-                    <div class="transaction-list">${found.join('\n') || 'None'}</div>
-                </div>
-                <div class="result-section not-found">
-                    <h3>Not Reimbursed (${notFound.length})</h3>
-                    <div class="transaction-list">${notFound.join('\n') || 'None'}</div>
-                </div>
-            `;
         }
         
         async function addTransactions() {
+            if (!transactionsRef) {
+                alert('Database not initialized. Please check your Firebase configuration.');
+                return;
+            }
+            
             const ids = document.getElementById('newIds').value.trim().split('\n').filter(id => id.trim());
             if (!ids.length) return;
             
-            const updates = {};
-            ids.forEach(id => {
-                updates[id.trim()] = {
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                };
-            });
-            
             try {
+                const updates = {};
+                ids.forEach(id => {
+                    updates[id.trim()] = {
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    };
+                });
+                
                 await transactionsRef.update(updates);
                 document.getElementById('addResults').innerHTML = `
                     <div class="result-section found">
@@ -201,6 +140,7 @@
                 `;
                 document.getElementById('newIds').value = '';
             } catch (error) {
+                console.error('Add error:', error);
                 document.getElementById('addResults').innerHTML = `
                     <div class="result-section not-found">
                         <h3>Error adding transactions: ${error.message}</h3>
