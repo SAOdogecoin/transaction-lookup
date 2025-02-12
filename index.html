@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Lookup</title>
-    <!-- Firebase SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body onload="switchTab('search')">
     <div class="container">
         <div class="tabs">
             <div class="tab active" onclick="switchTab('search')">Search</div>
@@ -29,7 +29,7 @@
     </div>
 
     <script>
-        // Initialize Firebase with configuration check
+        // Initialize Firebase config (same as before)
         let db;
         let transactionsRef;
         
@@ -73,10 +73,24 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // You could add a visual feedback here if desired
+                const copyButton = document.getElementById('copyAllButton');
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 2000);
             }).catch(err => {
                 console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
             });
+        }
+
+        function copyAllNotReimbursed() {
+            const notFoundItems = document.querySelectorAll('.not-found .transaction-item span');
+            const textToCopy = Array.from(notFoundItems).map(item => item.textContent.trim()).join('\n');
+            if (textToCopy) {
+                copyToClipboard(textToCopy);
+            }
         }
         
         async function searchTransactions() {
@@ -111,20 +125,25 @@
                     </div>
                 `;
 
-                // Not reimbursed transactions with copy buttons
-                const notFoundItems = notFound.map(id => `
-                    <div class="transaction-item">
-                        <span>${id}</span>
-                        <button class="copy-button" onclick="copyToClipboard('${id}')">Copy</button>
-                    </div>
-                `).join('');
-
-                const notFoundHtml = `
+                // Not reimbursed transactions with copy all button
+                const notFoundHtml = notFound.length ? `
                     <div class="result-section not-found">
-                        <h3>Not Reimbursed (${notFound.length})</h3>
-                        <div class="transaction-list">
-                            ${notFoundItems || 'None'}
+                        <div class="header-with-button">
+                            <h3>Not Reimbursed (${notFound.length})</h3>
+                            <button id="copyAllButton" class="copy-button" onclick="copyAllNotReimbursed()">Copy All</button>
                         </div>
+                        <div class="transaction-list">
+                            ${notFound.map(id => `
+                                <div class="transaction-item">
+                                    <span>${id}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="result-section not-found">
+                        <h3>Not Reimbursed (0)</h3>
+                        <div class="transaction-list">None</div>
                     </div>
                 `;
 
