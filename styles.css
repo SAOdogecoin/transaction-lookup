@@ -124,14 +124,13 @@ button:hover {
     font-family: 'Roboto Mono', monospace;
     font-size: 0.875rem;
     white-space: pre-wrap;
+    line-height: 1.5;
 }
 
 .transaction-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.25rem 0;  /* Reduced padding */
 }
 
 .transaction-item:last-child {
