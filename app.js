@@ -99,7 +99,7 @@ function createColumnLayout(transactions, isNotReimbursed) {
             ${columns.map(column => `
                 <div class="column">
                     ${isNotReimbursed ? `
-                        <button class="copy-button oblong" onclick="copyToClipboard('${column.join('\\n')}', this)">
+                        <button class="copy-button" onclick="copyToClipboard('${column.join('\\n')}', this)">
                             Copy Column
                         </button>
                     ` : ''}
