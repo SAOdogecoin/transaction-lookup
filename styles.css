@@ -38,11 +38,12 @@ body {
     font-size: 0.875rem;
     font-weight: 500;
     border-radius: 12px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
 .tab:hover {
     background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    transform: scale(1.05);
 }
 
 .tab.active {
@@ -116,6 +117,7 @@ button:disabled {
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
+    border: 1px solid #dadce0;
 }
 
 /* Header with button styles */
@@ -131,11 +133,6 @@ button:disabled {
     font-size: 1rem;
     font-weight: 500;
 }
-
-.found { background-color: rgba(230, 244, 234, 0.8); /* iOS-like blur background */ }
-.not-found { background-color: rgba(252, 232, 230, 0.8); /* iOS-like blur background */ }
-.warning { background-color: rgba(255, 243, 224, 0.8); /* iOS-like blur background */ }
-.duplicates { background-color: rgba(232, 234, 246, 0.8); /* iOS-like blur background */ }
 
 /* Columns container styles */
 .columns-container {
