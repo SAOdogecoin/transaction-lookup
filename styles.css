@@ -58,6 +58,18 @@ body {
     display: block;
 }
 
+.result-section.not-found .transaction-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    max-height: none;
+    overflow: hidden;
+}
+
+.button {
+    border-radius: 20px;
+}
+
 textarea {
     width: 100%;
     min-height: 120px;
