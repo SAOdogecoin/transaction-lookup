@@ -67,42 +67,27 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text, button) {
-    // Create temporary textarea
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    
-    try {
-        textarea.select();
-        document.execCommand('copy');
-        
+    navigator.clipboard.writeText(text).then(() => {
         // Visual feedback
-        const originalText = button.textContent;
         button.textContent = 'Copied!';
-        button.disabled = true;
-        
         setTimeout(() => {
-            button.textContent = originalText;
-            button.disabled = false;
+            button.textContent = 'Copy';
         }, 2000);
-        
-    } catch (err) {
+    }).catch(err => {
         console.error('Failed to copy:', err);
-        alert('Failed to copy to clipboard');
-    } finally {
-        document.body.removeChild(textarea);
-    }
+        alert('Failed to copy text');
+    });
 }
 
-function createColumnLayout(transactions, isNotReimbursed = false) {
+function createColumnLayout(transactions, isNotReimbursed) {
     const columns = chunkArray(transactions, COLUMN_SIZE);
     return `
         <div class="columns-container">
-            ${columns.map((column, index) => `
+            ${columns.map(column => `
                 <div class="column">
                     ${isNotReimbursed ? `
                         <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
-                            Copy Column
+                            Copy
                         </button>
                     ` : ''}
                     <div class="transaction-list">
@@ -114,13 +99,11 @@ function createColumnLayout(transactions, isNotReimbursed = false) {
     `;
 }
 
-// Modified results display section in searchTransactions function
+// When displaying results, only pass isNotReimbursed=true for not found section
 if (found.length > 0) {
     resultsHtml += `
         <div class="result-section found">
-            <div class="header-with-button">
-                <h3>Reimbursed (${found.length})</h3>
-            </div>
+            <h3>Reimbursed (${found.length})</h3>
             ${createColumnLayout(found, false)}
         </div>
     `;
@@ -129,13 +112,12 @@ if (found.length > 0) {
 if (notFound.length > 0) {
     resultsHtml += `
         <div class="result-section not-found">
-            <div class="header-with-button">
-                <h3>Not Reimbursed (${notFound.length})</h3>
-            </div>
+            <h3>Not Reimbursed (${notFound.length})</h3>
             ${createColumnLayout(notFound, true)}
         </div>
     `;
 }
+
 async function processInBatches(items, processBatch, updateProgressCallback) {
     const batches = chunkArray(items, BATCH_SIZE);
     let results = [];
