@@ -6,15 +6,16 @@ let authorized = false;
 
 async function initializeApp() {
     try {
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
+  authDomain: "rms-checker.firebaseapp.com",
+  databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
+  projectId: "rms-checker",
+  storageBucket: "rms-checker.firebasestorage.app",
+  messagingSenderId: "766008840687",
+  appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+  measurementId: "G-RDLTJ6D0GJ"
+};
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
