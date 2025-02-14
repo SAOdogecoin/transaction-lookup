@@ -138,7 +138,7 @@ button:disabled {
 .columns-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.2rem; /* Reduced margin to compress columns */
+    gap: 0.1rem; /* Further reduced margin to compress columns */
     margin-top: 1rem;
 }
 
@@ -146,7 +146,7 @@ button:disabled {
 .column {
     flex: 1;
     min-width: 200px;
-    max-width: calc(100% / 10 - 0.2rem); /* Ensure 10 columns per row max */
+    max-width: calc(100% / 10 - 0.1rem); /* Ensure 10 columns per row max */
     background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
     border-radius: 12px;
@@ -179,19 +179,20 @@ button:disabled {
 
 /* Copy button styles */
 .copy-button {
-    background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    background-color: #ffffff; /* White buttons */
     color: #007aff;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
     border: 1px solid #dadce0;
-    border-radius: 12px;
-    margin-top: 0.5rem;
+    padding: 0.75rem 1.5rem; /* Same size as the search button */
+    border-radius: 24px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
     align-self: center;
 }
 
 .copy-button:hover {
     background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    color: #005bb5;
 }
 
 .result-section.not-found .transaction-list {
@@ -228,7 +229,7 @@ button:disabled {
 
 @media (max-width: 768px) {
     .column {
-        max-width: calc(50% - 0.2rem);
+        max-width: calc(50% - 0.1rem);
     }
 }
 
