@@ -58,25 +58,43 @@ function updateProgress(progressBar, statusText, progress, message) {
     statusText.textContent = message;
 }
 
-function copyToClipboard(text) {
-    // First, create a temporary textarea to handle multi-line text properly
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function copyToClipboard(text, buttonElement) {
+    // Decode any HTML entities in the text
+    const decodedText = text.replace(/&amp;/g, '&')
+                           .replace(/&lt;/g, '<')
+                           .replace(/&gt;/g, '>')
+                           .replace(/&quot;/g, '"')
+                           .replace(/&#039;/g, "'");
+    
     const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';  // Prevent scrolling to bottom
+    textarea.value = decodedText;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
     document.body.appendChild(textarea);
-    textarea.select();
     
     try {
+        textarea.select();
         document.execCommand('copy');
-        // Visual feedback for copy action
-        const activeButton = document.querySelector('.copy-button:focus') || document.activeElement;
-        if (activeButton && activeButton.classList.contains('copy-button')) {
-            const originalText = activeButton.textContent;
-            activeButton.textContent = 'Copied!';
-            setTimeout(() => {
-                activeButton.textContent = originalText;
-            }, 2000);
-        }
+        
+        // Visual feedback
+        const originalText = buttonElement.textContent;
+        buttonElement.textContent = 'Copied!';
+        buttonElement.disabled = true;
+        
+        setTimeout(() => {
+            buttonElement.textContent = originalText;
+            buttonElement.disabled = false;
+        }, 2000);
+        
     } catch (err) {
         console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard');
@@ -101,16 +119,31 @@ if (notFound.length) {
 }
 
 // Modified results HTML generation in addTransactions function
+if (notFound.length) {
+    resultsHtml += `
+        <div class="result-section not-found">
+            <div class="header-with-button">
+                <h3>Not Reimbursed (${notFound.length})</h3>
+                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(notFound.join('\n'))}', this)">
+                    Copy All
+                </button>
+            </div>
+            <div class="transaction-list">${escapeHtml(notFound.join('\n'))}</div>
+        </div>
+    `;
+}
+
+// Update the results HTML generation in addTransactions function:
 if (duplicates.length > 0) {
     resultsHtml += `
         <div class="result-section duplicates">
             <div class="header-with-button">
                 <h3>Skipped - Already Exists (${duplicates.length})</h3>
-                <button class="copy-button" onclick="copyToClipboard(\`${duplicates.join('\n')}\`)">
+                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(duplicates.join('\n'))}', this)">
                     Copy All
                 </button>
             </div>
-            <div class="transaction-list">${duplicates.join('\n')}</div>
+            <div class="transaction-list">${escapeHtml(duplicates.join('\n'))}</div>
         </div>
     `;
 }
