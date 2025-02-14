@@ -42,6 +42,14 @@ function updateConnectionStatus(connected) {
     });
 }
 
+function chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+}
+
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -103,7 +111,7 @@ function copyToClipboard(text, buttonElement) {
     }
 }
 
-// Modified results HTML generation in searchTransactions function
+// Modified results HTML generation in function
 if (notFound.length) {
     resultsHtml += `
         <div class="result-section not-found">
@@ -236,34 +244,37 @@ async function searchTransactions() {
         // Display results
         let resultsHtml = '';
 
-        if (notFound.length) {
-            resultsHtml += `
-                <div class="result-section not-found">
-                    <div class="header-with-button">
-                        <h3>Not Reimbursed (${notFound.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${notFound.join('\n')}')">
-                            Copy All
+if (notFound.length) {
+    const chunks = chunkArray(notFound, 25);
+    resultsHtml += `
+        <div class="result-section not-found">
+            <div class="header-with-button">
+                <h3>Not Reimbursed (${notFound.length})</h3>
+                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(notFound.join('\n'))}', this)">
+                    Copy All
+                </button>
+            </div>
+            ${chunks.map((chunk, index) => `
+                <div class="transaction-group">
+                    <div class="group-header">
+                        <h4>Group ${index + 1} (${chunk.length} transactions)</h4>
+                        <button class="copy-button" onclick="copyToClipboard('${escapeHtml(chunk.join('\n'))}', this)">
+                            Copy Group
                         </button>
                     </div>
-                    <div class="transaction-list">${notFound.join('\n')}</div>
+                    <div class="transaction-list">${escapeHtml(chunk.join('\n'))}</div>
                 </div>
-            `;
-        } else {
-            resultsHtml += `
-                <div class="result-section not-found">
-                    <h3>Not Reimbursed (0)</h3>
-                    <div class="transaction-list">None</div>
-                </div>
-            `;
-        }
-
-        resultsHtml += `
-            <div class="result-section found">
-                <h3>Reimbursed (${found.length})</h3>
-                <div class="transaction-list">${found.join('\n') || 'None'}</div>
-            </div>
-        `;
-
+            `).join('')}
+        </div>
+    `;
+} else {
+    resultsHtml += `
+        <div class="result-section not-found">
+            <h3>Not Reimbursed (0)</h3>
+            <div class="transaction-list">None</div>
+        </div>
+    `;
+}
         results.innerHTML = resultsHtml;
         updateProgress(progressBar, statusText, 100, `Completed processing ${ids.length} transactions`);
 
