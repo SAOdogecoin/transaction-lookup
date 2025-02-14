@@ -99,7 +99,7 @@ function createColumnLayout(transactions, isNotReimbursed) {
             ${columns.map(column => `
                 <div class="column">
                     ${isNotReimbursed ? `
-                        <button class="copy-button" onclick="copyToClipboard('${column.join('\\n')}', this)">
+                        <button class="copy-button oblong" onclick="copyToClipboard('${column.join('\\n')}', this)">
                             Copy Column
                         </button>
                     ` : ''}
@@ -110,22 +110,6 @@ function createColumnLayout(transactions, isNotReimbursed) {
             `).join('')}
         </div>
     `;
-}
-async function processInBatches(items, processBatch, updateProgressCallback) {
-    const batches = chunkArray(items, BATCH_SIZE);
-    let results = [];
-    let processed = 0;
-
-    for (const batch of batches) {
-        const batchResults = await processBatch(batch);
-        results = results.concat(batchResults);
-        
-        processed += batch.length;
-        const progress = (processed / items.length) * 100;
-        updateProgressCallback(progress);
-    }
-
-    return results;
 }
 
 async function searchTransactions() {
