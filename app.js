@@ -187,6 +187,18 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
+        // Display Not Reimbursed results (red background) at the top
+        if (notFound.length > 0) {
+            resultsHtml += `
+                <div class="result-section not-found">
+                    <div class="header-with-button">
+                        <h3>Not Reimbursed (${notFound.length})</h3>
+                    </div>
+                    ${createColumnLayout(notFound, true)}
+                </div>
+            `;
+        }
+
         // Display Reimbursed results (green background)
         if (found.length > 0) {
             resultsHtml += `
@@ -194,19 +206,7 @@ async function searchTransactions() {
                     <div class="header-with-button">
                         <h3>Reimbursed (${found.length})</h3>
                     </div>
-                    ${createColumnLayout(found)}
-                </div>
-            `;
-        }
-
-        // Display Not Reimbursed results (red background)
-        if (notFound.length > 0) {
-            resultsHtml += `
-                <div class="result-section not-found">
-                    <div class="header-with-button">
-                        <h3>Not Reimbursed (${notFound.length})</h3>
-                    </div>
-                    ${createColumnLayout(notFound)}
+                    ${createColumnLayout(found, false)}
                 </div>
             `;
         }
