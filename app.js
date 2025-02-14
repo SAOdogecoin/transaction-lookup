@@ -66,6 +66,69 @@ function updateProgress(progressBar, statusText, progress, message) {
     statusText.textContent = message;
 }
 
+async function addTransactions() {
+    if (!transactionsRef) {
+        alert('Database not initialized. Please check your Firebase configuration.');
+        return;
+    }
+
+    const addButton = document.getElementById('addButton');
+    const progressBar = document.getElementById('addProgress');
+    const statusText = document.getElementById('addStatus');
+    const results = document.getElementById('addResults');
+
+    try {
+        addButton.disabled = true;
+        results.innerHTML = '';
+        
+        const ids = [...new Set(document.getElementById('newIds').value
+            .trim()
+            .split('\n')
+            .map(id => id.trim())
+            .filter(id => id))];
+
+        if (!ids.length) {
+            updateProgress(progressBar, statusText, 0, 'Please enter transaction IDs');
+            return;
+        }
+
+        updateProgress(progressBar, statusText, 0, `Processing ${ids.length} transactions...`);
+
+        await processInBatches(
+            ids,
+            async (batch) => {
+                const promises = batch.map(id => 
+                    transactionsRef.child(id).set({ timestamp: firebase.database.ServerValue.TIMESTAMP })
+                );
+                
+                const batchResults = await Promise.all(promises);
+                return batchResults;
+            },
+            (progress) => {
+                updateProgress(
+                    progressBar, 
+                    statusText, 
+                    progress, 
+                    `Processing... ${Math.round(progress)}%`
+                );
+            }
+        );
+
+        updateProgress(progressBar, statusText, 100, `Completed adding ${ids.length} transactions`);
+
+    } catch (error) {
+        console.error('Add error:', error);
+        results.innerHTML = `
+            <div class="result-section not-found">
+                <h3>Error adding transactions: ${error.message}</h3>
+            </div>
+        `;
+        updateProgress(progressBar, statusText, 0, 'Error occurred while adding');
+    } finally {
+        addButton.disabled = false;
+    }
+}
+
 function copyToClipboard(text, button) {
     // Create a temporary textarea element
     const textarea = document.createElement('textarea');
