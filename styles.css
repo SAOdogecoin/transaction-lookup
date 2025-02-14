@@ -1,3 +1,4 @@
+/* General styles */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,17 +7,19 @@
 }
 
 body {
-    background-color: #f0f0f5;
+    background-color: #ffffff;
     color: #202124;
     line-height: 1.5;
 }
 
+/* Container styles */
 .container {
     max-width: 800px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
 
+/* Tabs styles */
 .tabs {
     display: flex;
     gap: 1px;
@@ -46,6 +49,7 @@ body {
     border-bottom: 2px solid #007aff;
 }
 
+/* Tab content styles */
 .tab-content {
     display: none;
     background: #fff;
@@ -58,6 +62,7 @@ body {
     display: block;
 }
 
+/* Textarea styles */
 textarea {
     width: 100%;
     min-height: 120px;
@@ -74,6 +79,7 @@ textarea:focus {
     border-color: #007aff;
 }
 
+/* Button styles */
 button {
     background-color: #007aff;
     color: white;
@@ -94,6 +100,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Results styles */
 .results {
     margin-top: 1.5rem;
 }
@@ -104,6 +111,7 @@ button:disabled {
     border-radius: 12px;
 }
 
+/* Header with button styles */
 .header-with-button {
     display: flex;
     justify-content: space-between;
@@ -122,6 +130,7 @@ button:disabled {
 .warning { background-color: #fff3e0; }
 .duplicates { background-color: #e8eaf6; }
 
+/* Columns container styles */
 .columns-container {
     display: flex;
     flex-wrap: wrap;
@@ -129,6 +138,7 @@ button:disabled {
     margin-top: 1rem;
 }
 
+/* Column styles */
 .column {
     flex: 1;
     min-width: 200px;
@@ -138,18 +148,20 @@ button:disabled {
     padding: 0.75rem;
 }
 
+/* Transaction list styles */
 .transaction-list {
     font-family: 'Roboto Mono', monospace;
     font-size: 0.875rem;
     white-space: pre-wrap;
     line-height: 1.5;
-    max-height: 400px;
-    overflow-y: auto;
+    max-height: 100px; /* Limit height to show a few transactions */
+    overflow: hidden; /* Hide scrollbars */
     padding: 0.5rem;
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
 }
 
+/* Copy button styles */
 .copy-button {
     background-color: transparent;
     color: #007aff;
@@ -171,6 +183,7 @@ button:disabled {
     gap: 10px;
 }
 
+/* Progress bar styles */
 .progress-bar {
     width: 100%;
     height: 4px;
@@ -188,6 +201,7 @@ button:disabled {
     transition: width 0.3s ease;
 }
 
+/* Status text styles */
 .status-text {
     font-size: 0.875rem;
     color: #5f6368;
