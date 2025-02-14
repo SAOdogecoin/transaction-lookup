@@ -127,8 +127,11 @@ button:disabled {
     font-size: 0.875rem;
     white-space: pre-wrap;
     line-height: 1.5;
-    max-height: 300px;
+    max-height: 200px; /* Reduced from 300px for better group viewing */
     overflow-y: auto;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
 }
 
 .copy-button {
@@ -137,6 +140,11 @@ button:disabled {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     border: 1px solid #1a73e8;
+}
+
+.group-header .copy-button {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
 }
 
 .progress-bar {
@@ -161,4 +169,29 @@ button:disabled {
     color: #5f6368;
     margin-bottom: 1rem;
     display: none;
+}
+
+.transaction-group {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.transaction-group:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.group-header h4 {
+    font-size: 0.875rem;
+    color: #202124;
+    font-weight: 500;
+    margin: 0;
 }
