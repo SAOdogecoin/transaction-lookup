@@ -1,6 +1,8 @@
+// app.js
 let db;
 let transactionsRef;
-const BATCH_SIZE = 100; // Number of operations to process at once
+const BATCH_SIZE = 100;
+const COLUMN_SIZE = 25;
 
 async function initializeApp() {
     try {
@@ -20,8 +22,6 @@ async function initializeApp() {
         
         db = firebase.database();
         transactionsRef = db.ref('transactions');
-        
-        // Enable offline persistence
         db.goOnline();
         
         db.ref('.info/connected').on('value', (snap) => {
@@ -66,122 +66,48 @@ function updateProgress(progressBar, statusText, progress, message) {
     statusText.textContent = message;
 }
 
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function copyToClipboard(text, buttonElement) {
-    // Decode any HTML entities in the text
-    const decodedText = text.replace(/&amp;/g, '&')
-                           .replace(/&lt;/g, '<')
-                           .replace(/&gt;/g, '>')
-                           .replace(/&quot;/g, '"')
-                           .replace(/&#039;/g, "'");
-    
-    const textarea = document.createElement('textarea');
-    textarea.value = decodedText;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    
-    try {
-        textarea.select();
-        document.execCommand('copy');
-        
-        // Visual feedback
-        const originalText = buttonElement.textContent;
-        buttonElement.textContent = 'Copied!';
-        buttonElement.disabled = true;
-        
-        setTimeout(() => {
-            buttonElement.textContent = originalText;
-            buttonElement.disabled = false;
-        }, 2000);
-        
-    } catch (err) {
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Success notification can be added here if needed
+    }).catch(err => {
         console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard');
-    } finally {
-        document.body.removeChild(textarea);
-    }
-}
-
-// Modified results HTML generation in function
-if (notFound.length) {
-    resultsHtml += `
-        <div class="result-section not-found">
-            <div class="header-with-button">
-                <h3>Not Reimbursed (${notFound.length})</h3>
-                <button class="copy-button" onclick="copyToClipboard(\`${notFound.join('\n')}\`)">
-                    Copy All
-                </button>
-            </div>
-            <div class="transaction-list">${notFound.join('\n')}</div>
-        </div>
-    `;
-}
-
-// Modified results HTML generation in addTransactions function
-if (notFound.length) {
-    resultsHtml += `
-        <div class="result-section not-found">
-            <div class="header-with-button">
-                <h3>Not Reimbursed (${notFound.length})</h3>
-                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(notFound.join('\n'))}', this)">
-                    Copy All
-                </button>
-            </div>
-            <div class="transaction-list">${escapeHtml(notFound.join('\n'))}</div>
-        </div>
-    `;
-}
-
-// Update the results HTML generation in addTransactions function:
-if (duplicates.length > 0) {
-    resultsHtml += `
-        <div class="result-section duplicates">
-            <div class="header-with-button">
-                <h3>Skipped - Already Exists (${duplicates.length})</h3>
-                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(duplicates.join('\n'))}', this)">
-                    Copy All
-                </button>
-            </div>
-            <div class="transaction-list">${escapeHtml(duplicates.join('\n'))}</div>
-        </div>
-    `;
-}
-
-function processInBatches(items, processBatch, updateProgressCallback) {
-    return new Promise((resolve, reject) => {
-        const batches = [];
-        for (let i = 0; i < items.length; i += BATCH_SIZE) {
-            batches.push(items.slice(i, i + BATCH_SIZE));
-        }
-
-        let results = [];
-        let processed = 0;
-
-        const processBatches = async () => {
-            for (const batch of batches) {
-                const batchResults = await processBatch(batch);
-                results = results.concat(batchResults);
-                
-                processed += batch.length;
-                const progress = (processed / items.length) * 100;
-                updateProgressCallback(progress);
-            }
-            return results;
-        };
-
-        processBatches()
-            .then(resolve)
-            .catch(reject);
     });
+}
+
+function createColumnLayout(transactions) {
+    const columns = chunkArray(transactions, COLUMN_SIZE);
+    return `
+        <div class="columns-container">
+            ${columns.map(column => `
+                <div class="column">
+                    <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}')">
+                        Copy Column
+                    </button>
+                    <div class="transaction-list">
+                        ${column.join('\n')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+async function processInBatches(items, processBatch, updateProgressCallback) {
+    const batches = chunkArray(items, BATCH_SIZE);
+    let results = [];
+    let processed = 0;
+
+    for (const batch of batches) {
+        const batchResults = await processBatch(batch);
+        results = results.concat(batchResults);
+        
+        processed += batch.length;
+        const progress = (processed / items.length) * 100;
+        updateProgressCallback(progress);
+    }
+
+    return results;
 }
 
 async function searchTransactions() {
@@ -241,40 +167,29 @@ async function searchTransactions() {
             }
         );
 
-        // Display results
         let resultsHtml = '';
 
-if (notFound.length) {
-    const chunks = chunkArray(notFound, 25);
-    resultsHtml += `
-        <div class="result-section not-found">
-            <div class="header-with-button">
-                <h3>Not Reimbursed (${notFound.length})</h3>
-                <button class="copy-button" onclick="copyToClipboard('${escapeHtml(notFound.join('\n'))}', this)">
-                    Copy All
-                </button>
-            </div>
-            ${chunks.map((chunk, index) => `
-                <div class="transaction-group">
-                    <div class="group-header">
-                        <h4>Group ${index + 1} (${chunk.length} transactions)</h4>
-                        <button class="copy-button" onclick="copyToClipboard('${escapeHtml(chunk.join('\n'))}', this)">
-                            Copy Group
+        if (notFound.length) {
+            resultsHtml += `
+                <div class="result-section not-found">
+                    <div class="header-with-button">
+                        <h3>Not Reimbursed (${notFound.length})</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${notFound.join('\n')}')">
+                            Copy All
                         </button>
                     </div>
-                    <div class="transaction-list">${escapeHtml(chunk.join('\n'))}</div>
+                    ${createColumnLayout(notFound)}
                 </div>
-            `).join('')}
-        </div>
-    `;
-} else {
-    resultsHtml += `
-        <div class="result-section not-found">
-            <h3>Not Reimbursed (0)</h3>
-            <div class="transaction-list">None</div>
-        </div>
-    `;
-}
+            `;
+        } else {
+            resultsHtml += `
+                <div class="result-section not-found">
+                    <h3>Not Reimbursed (0)</h3>
+                    <div class="transaction-list">None</div>
+                </div>
+            `;
+        }
+
         results.innerHTML = resultsHtml;
         updateProgress(progressBar, statusText, 100, `Completed processing ${ids.length} transactions`);
 
@@ -306,7 +221,6 @@ async function addTransactions() {
         addButton.disabled = true;
         results.innerHTML = '';
 
-        // Remove duplicates from input
         const ids = [...new Set(document.getElementById('newIds').value
             .trim()
             .split('\n')
@@ -323,7 +237,6 @@ async function addTransactions() {
         const newTransactions = [];
         const duplicates = [];
 
-        // First, check for existing transactions
         await processInBatches(
             ids,
             async (batch) => {
@@ -342,13 +255,12 @@ async function addTransactions() {
                 updateProgress(
                     progressBar,
                     statusText,
-                    progress / 2, // First half of progress for checking
+                    progress / 2,
                     `Checking existing transactions... ${Math.round(progress)}%`
                 );
             }
         );
 
-        // Only proceed with adding new transactions if there are any
         if (newTransactions.length > 0) {
             await processInBatches(
                 newTransactions,
@@ -364,7 +276,7 @@ async function addTransactions() {
                     return batch;
                 },
                 (progress) => {
-                    const overallProgress = 50 + (progress / 2); // Second half of progress for adding
+                    const overallProgress = 50 + (progress / 2);
                     updateProgress(
                         progressBar,
                         statusText,
@@ -375,14 +287,18 @@ async function addTransactions() {
             );
         }
 
-        // Display results
         let resultsHtml = '';
 
         if (newTransactions.length > 0) {
             resultsHtml += `
                 <div class="result-section found">
-                    <h3>Successfully Added (${newTransactions.length})</h3>
-                    <div class="transaction-list">${newTransactions.join('\n')}</div>
+                    <div class="header-with-button">
+                        <h3>Successfully Added (${newTransactions.length})</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${newTransactions.join('\n')}')">
+                            Copy All
+                        </button>
+                    </div>
+                    ${createColumnLayout(newTransactions)}
                 </div>
             `;
         }
@@ -396,14 +312,13 @@ async function addTransactions() {
                             Copy All
                         </button>
                     </div>
-                    <div class="transaction-list">${duplicates.join('\n')}</div>
+                    ${createColumnLayout(duplicates)}
                 </div>
             `;
         }
 
         results.innerHTML = resultsHtml;
         
-        // Clear input after successful addition
         if (newTransactions.length > 0) {
             document.getElementById('newIds').value = '';
         }
@@ -428,22 +343,18 @@ async function addTransactions() {
     }
 }
 
-// Add event listeners for textarea input validation
 document.addEventListener('DOMContentLoaded', () => {
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach(textarea => {
         textarea.addEventListener('input', (e) => {
-            // Remove any non-printable characters and excessive whitespace
             e.target.value = e.target.value
-                .replace(/[^\S\r\n]+/g, '') // Remove multiple spaces
-                .replace(/\n\s*\n\s*\n/g, '\n\n'); // Remove excessive newlines
+                .replace(/[^\S\r\n]+/g, '')
+                .replace(/\n\s*\n\s*\n/g, '\n\n');
         });
     });
 });
 
-// Add keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Ctrl/Cmd + Enter to trigger search/add depending on active tab
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         const activeTab = document.querySelector('.tab-content.active');
