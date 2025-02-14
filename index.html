@@ -16,6 +16,7 @@
         <div class="tabs">
             <div class="tab active" onclick="switchTab('search')">Search</div>
             <div class="tab" onclick="switchTab('add')">Add Transactions</div>
+            <div class="tab" onclick="switchTab('database')">Access Database</div>
         </div>
         
         <div id="searchTab" class="tab-content active">
@@ -46,12 +47,15 @@
             <div class="results" id="addResults"></div>
         </div>
 
-<div>
-    <button id="viewDatabaseButton">View Database Contents</button>
-    <button id="editSelectedButton">Edit Selected</button>
-    <button id="deleteSelectedButton">Delete Selected</button>
-</div>
-<div id="databaseResults"></div>
+        <div id="databaseTab" class="tab-content">
+            <input type="password" id="databasePin" placeholder="Enter 4-digit PIN">
+            <button id="accessDatabaseButton" onclick="requestPIN(showDatabaseContents)">Access Database</button>
+            <div>
+                <button id="editSelectedButton" onclick="requestPIN(editSelectedTransactions)">Edit Selected</button>
+                <button id="deleteSelectedButton" onclick="requestPIN(deleteSelectedTransactions)">Delete Selected</button>
+            </div>
+            <div class="results" id="databaseResults"></div>
         </div>
+    </div>
 </body>
 </html>
