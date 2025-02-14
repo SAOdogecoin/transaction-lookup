@@ -15,7 +15,7 @@ body {
 /* Container styles */
 .container {
     width: 100%;
-    margin: 0; /* Remove margin */
+    margin: 20px 0; /* Add margin on top and bottom */
     padding: 0 1rem;
 }
 
@@ -118,8 +118,6 @@ button:disabled {
     background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
     border: 1px solid #dadce0;
-    border-top: 2px solid #007aff; /* Top border */
-    border-bottom: 2px solid #007aff; /* Bottom border */
 }
 
 /* Header with button styles */
@@ -138,23 +136,22 @@ button:disabled {
 
 /* Columns container styles */
 .columns-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 1rem;
     margin-top: 1rem;
 }
 
 /* Column styles */
 .column {
-    flex: 1;
-    min-width: 200px;
-    max-width: calc(25% - 0.67rem); /* Adjust width to accommodate more columns */
+    width: calc(100% / 10 - 1rem); /* Ensure 10 columns per row max */
     background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
     border-radius: 12px;
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
+    aspect-ratio: 1 / 1; /* Keep columns square-shaped */
 }
 
 /* Transaction list styles */
