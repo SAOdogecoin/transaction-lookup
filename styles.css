@@ -144,7 +144,9 @@ button:disabled {
 
 /* Column styles */
 .column {
-    width: calc(100% / 10 - 1rem); /* Ensure 10 columns per row max */
+    flex: 1;
+    min-width: 200px;
+    max-width: calc(100% / 10 - 1rem); /* Ensure 10 columns per row max */
     background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
     border-radius: 12px;
@@ -160,7 +162,7 @@ button:disabled {
     font-size: 0.875rem;
     white-space: pre-wrap;
     line-height: 1.5;
-    max-height: 100px; /* Limit height to show a few transactions */
+    max-height: 200px; /* Adjusted to ensure the transaction window is visible */
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 0.5rem;
     background-color: rgba(0, 0, 0, 0.02);
