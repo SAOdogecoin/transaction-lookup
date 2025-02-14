@@ -1,18 +1,18 @@
-// app.js
 let db;
 let transactionsRef;
 const BATCH_SIZE = 100;
-const COLUMN_SIZE = 25;
+const COLUMN_SIZE = 10; // Updated to 10 columns for Not Reimbursed
+let authorized = false;
 
 async function initializeApp() {
     try {
         const firebaseConfig = {
-            apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
-            authDomain: "rms-checker.firebaseapp.com",
-            databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
-            projectId: "rms-checker",
-            storageBucket: "rms-checker.firebasestorage.app",
-            messagingSenderId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
 
@@ -42,8 +42,6 @@ function updateConnectionStatus(connected) {
     });
 }
 
-let authorized = false;
-
 function validatePIN(pin) {
     const correctPIN = "1234"; // Replace this with a secure method to store and validate PINs
     if (pin === correctPIN) {
@@ -56,34 +54,11 @@ function validatePIN(pin) {
 }
 
 function requestPIN(callback) {
-    const pin = prompt("Enter your 4-digit PIN:");
+    const pin = document.getElementById('databasePin').value;
     validatePIN(pin);
     if (authorized) {
         callback();
     }
-}
-
-document.getElementById('editButton').addEventListener('click', () => {
-    requestPIN(() => {
-        const id = prompt("Enter transaction ID to edit:");
-        const newData = {}; // Collect new data from the user
-        editTransaction(id, newData);
-    });
-});
-
-document.getElementById('deleteButton').addEventListener('click', () => {
-    requestPIN(() => {
-        const id = prompt("Enter transaction ID to delete:");
-        deleteTransaction(id);
-    });
-});
-
-function chunkArray(array, size) {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += size) {
-        chunks.push(array.slice(i, i + size));
-    }
-    return chunks;
 }
 
 async function showDatabaseContents() {
@@ -140,23 +115,19 @@ function deleteSelectedTransactions() {
     });
 }
 
-document.getElementById('viewDatabaseButton').addEventListener('click', () => {
-    requestPIN(showDatabaseContents);
-});
-
-document.getElementById('editSelectedButton').addEventListener('click', () => {
-    requestPIN(editSelectedTransactions);
-});
-
-document.getElementById('deleteSelectedButton').addEventListener('click', () => {
-    requestPIN(deleteSelectedTransactions);
-});
+function chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+}
 
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
-    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
@@ -227,7 +198,7 @@ async function addTransactions() {
 
         if (existingIds.length > 0) {
             results.innerHTML = `
-                <div class="result-section warning">
+                <div class="result-section">
                     <h3>Duplicate Transactions (${existingIds.length})</h3>
                     <div class="transaction-list">${existingIds.join('<br>')}</div>
                 </div>
@@ -257,7 +228,7 @@ async function addTransactions() {
             );
 
             results.innerHTML += `
-                <div class="result-section found">
+                <div class="result-section">
                     <h3>Added Transactions (${newIds.length})</h3>
                     <div class="transaction-list">${newIds.join('<br>')}</div>
                 </div>
@@ -269,7 +240,7 @@ async function addTransactions() {
     } catch (error) {
         console.error('Add error:', error);
         results.innerHTML = `
-            <div class="result-section not-found">
+            <div class="result-section">
                 <h3>Error adding transactions: ${error.message}</h3>
             </div>
         `;
@@ -401,10 +372,10 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
-        // Display Not Reimbursed results (red background) at the top
+        // Display Not Reimbursed results at the top
         if (notFound.length > 0) {
             resultsHtml += `
-                <div class="result-section not-found">
+                <div class="result-section">
                     <div class="header-with-button">
                         <h3>Not Reimbursed (${notFound.length})</h3>
                     </div>
@@ -413,10 +384,10 @@ async function searchTransactions() {
             `;
         }
 
-        // Display Reimbursed results (green background)
+        // Display Reimbursed results
         if (found.length > 0) {
             resultsHtml += `
-                <div class="result-section found">
+                <div class="result-section">
                     <div class="header-with-button">
                         <h3>Reimbursed (${found.length})</h3>
                     </div>
@@ -431,7 +402,7 @@ async function searchTransactions() {
     } catch (error) {
         console.error('Search error:', error);
         results.innerHTML = `
-            <div class="result-section not-found">
+            <div class="result-section">
                 <h3>Error searching transactions: ${error.message}</h3>
             </div>
         `;
