@@ -80,7 +80,7 @@ async function addTransactions() {
     try {
         addButton.disabled = true;
         results.innerHTML = '';
-        
+
         const ids = [...new Set(document.getElementById('newIds').value
             .trim()
             .split('\n')
@@ -92,29 +92,77 @@ async function addTransactions() {
             return;
         }
 
-        updateProgress(progressBar, statusText, 0, `Processing ${ids.length} transactions...`);
+        updateProgress(progressBar, statusText, 0, `Checking ${ids.length} transactions...`);
+
+        const existingIds = [];
+        const newIds = [];
 
         await processInBatches(
             ids,
             async (batch) => {
                 const promises = batch.map(id => 
-                    transactionsRef.child(id).set({ timestamp: firebase.database.ServerValue.TIMESTAMP })
+                    transactionsRef.child(id).once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                existingIds.push(id);
+                            } else {
+                                newIds.push(id);
+                            }
+                        })
                 );
                 
-                const batchResults = await Promise.all(promises);
-                return batchResults;
+                await Promise.all(promises);
             },
             (progress) => {
                 updateProgress(
                     progressBar, 
                     statusText, 
                     progress, 
-                    `Processing... ${Math.round(progress)}%`
+                    `Checking... ${Math.round(progress)}%`
                 );
             }
         );
 
-        updateProgress(progressBar, statusText, 100, `Completed adding ${ids.length} transactions`);
+        if (existingIds.length > 0) {
+            results.innerHTML = `
+                <div class="result-section warning">
+                    <h3>Duplicate Transactions (${existingIds.length})</h3>
+                    <div class="transaction-list">${existingIds.join('<br>')}</div>
+                </div>
+            `;
+        }
+
+        if (newIds.length > 0) {
+            updateProgress(progressBar, statusText, 0, `Adding ${newIds.length} transactions...`);
+
+            await processInBatches(
+                newIds,
+                async (batch) => {
+                    const promises = batch.map(id => 
+                        transactionsRef.child(id).set({ timestamp: firebase.database.ServerValue.TIMESTAMP })
+                    );
+                    
+                    await Promise.all(promises);
+                },
+                (progress) => {
+                    updateProgress(
+                        progressBar, 
+                        statusText, 
+                        progress, 
+                        `Adding... ${Math.round(progress)}%`
+                    );
+                }
+            );
+
+            results.innerHTML += `
+                <div class="result-section found">
+                    <h3>Added Transactions (${newIds.length})</h3>
+                    <div class="transaction-list">${newIds.join('<br>')}</div>
+                </div>
+            `;
+        }
+
+        updateProgress(progressBar, statusText, 100, `Completed processing ${ids.length} transactions`);
 
     } catch (error) {
         console.error('Add error:', error);
