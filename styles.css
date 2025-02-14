@@ -139,14 +139,6 @@ button:disabled {
     border: 1px solid #1a73e8;
 }
 
-.copy-button:hover {
-    background-color: #e0e0e0;
-}
-
-.copy-button:active {
-    background-color: #d0d0d0;
-}
-
 .progress-bar {
     width: 100%;
     height: 4px;
