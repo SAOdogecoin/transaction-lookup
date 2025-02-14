@@ -67,16 +67,29 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text, button) {
-    navigator.clipboard.writeText(text).then(() => {
+    // Create a temporary textarea element
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
         // Visual feedback
+        const originalText = button.textContent;
         button.textContent = 'Copied!';
+        button.disabled = true;
+        
         setTimeout(() => {
-            button.textContent = 'Copy';
+            button.textContent = originalText;
+            button.disabled = false;
         }, 2000);
-    }).catch(err => {
+    } catch (err) {
         console.error('Failed to copy:', err);
         alert('Failed to copy text');
-    });
+    } finally {
+        document.body.removeChild(textarea);
+    }
 }
 
 function createColumnLayout(transactions, isNotReimbursed) {
@@ -86,8 +99,8 @@ function createColumnLayout(transactions, isNotReimbursed) {
             ${columns.map(column => `
                 <div class="column">
                     ${isNotReimbursed ? `
-                        <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
-                            Copy
+                        <button class="copy-button" onclick="copyToClipboard('${column.join('\\n')}', this)">
+                            Copy Column
                         </button>
                     ` : ''}
                     <div class="transaction-list">
@@ -98,26 +111,6 @@ function createColumnLayout(transactions, isNotReimbursed) {
         </div>
     `;
 }
-
-// When displaying results, only pass isNotReimbursed=true for not found section
-if (found.length > 0) {
-    resultsHtml += `
-        <div class="result-section found">
-            <h3>Reimbursed (${found.length})</h3>
-            ${createColumnLayout(found, false)}
-        </div>
-    `;
-}
-
-if (notFound.length > 0) {
-    resultsHtml += `
-        <div class="result-section not-found">
-            <h3>Not Reimbursed (${notFound.length})</h3>
-            ${createColumnLayout(notFound, true)}
-        </div>
-    `;
-}
-
 async function processInBatches(items, processBatch, updateProgressCallback) {
     const batches = chunkArray(items, BATCH_SIZE);
     let results = [];
