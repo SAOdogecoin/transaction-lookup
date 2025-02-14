@@ -63,26 +63,6 @@ function requestPIN(callback) {
     }
 }
 
-function editTransaction(id, newData) {
-    if (!authorized) {
-        alert("Not authorized to edit transactions");
-        return;
-    }
-    transactionsRef.child(id).update(newData)
-        .then(() => alert("Transaction updated successfully"))
-        .catch(error => alert("Failed to update transaction: " + error.message));
-}
-
-function deleteTransaction(id) {
-    if (!authorized) {
-        alert("Not authorized to delete transactions");
-        return;
-    }
-    transactionsRef.child(id).remove()
-        .then(() => alert("Transaction deleted successfully"))
-        .catch(error => alert("Failed to delete transaction: " + error.message));
-}
-
 document.getElementById('editButton').addEventListener('click', () => {
     requestPIN(() => {
         const id = prompt("Enter transaction ID to edit:");
@@ -105,6 +85,72 @@ function chunkArray(array, size) {
     }
     return chunks;
 }
+
+async function showDatabaseContents() {
+    if (!authorized) {
+        alert("Not authorized to view database contents");
+        return;
+    }
+
+    const contents = await transactionsRef.once('value').then(snapshot => snapshot.val());
+    console.log(contents); // For debugging purposes, remove in production
+
+    const results = document.getElementById('databaseResults');
+    results.innerHTML = '<h3>Database Contents</h3>';
+
+    Object.keys(contents).forEach(id => {
+        const transaction = contents[id];
+        results.innerHTML += `
+            <div class="transaction-entry">
+                <input type="checkbox" class="select-transaction" data-id="${id}">
+                <span>${id}: ${JSON.stringify(transaction)}</span>
+            </div>
+        `;
+    });
+}
+
+function editSelectedTransactions() {
+    if (!authorized) {
+        alert("Not authorized to edit transactions");
+        return;
+    }
+
+    const selectedCheckboxes = document.querySelectorAll('.select-transaction:checked');
+    selectedCheckboxes.forEach(async checkbox => {
+        const id = checkbox.dataset.id;
+        const newData = {}; // Collect new data from the user
+        await transactionsRef.child(id).update(newData)
+            .then(() => alert(`Transaction ${id} updated successfully`))
+            .catch(error => alert(`Failed to update transaction ${id}: ${error.message}`));
+    });
+}
+
+function deleteSelectedTransactions() {
+    if (!authorized) {
+        alert("Not authorized to delete transactions");
+        return;
+    }
+
+    const selectedCheckboxes = document.querySelectorAll('.select-transaction:checked');
+    selectedCheckboxes.forEach(async checkbox => {
+        const id = checkbox.dataset.id;
+        await transactionsRef.child(id).remove()
+            .then(() => alert(`Transaction ${id} deleted successfully`))
+            .catch(error => alert(`Failed to delete transaction ${id}: ${error.message}`));
+    });
+}
+
+document.getElementById('viewDatabaseButton').addEventListener('click', () => {
+    requestPIN(showDatabaseContents);
+});
+
+document.getElementById('editSelectedButton').addEventListener('click', () => {
+    requestPIN(editSelectedTransactions);
+});
+
+document.getElementById('deleteSelectedButton').addEventListener('click', () => {
+    requestPIN(deleteSelectedTransactions);
+});
 
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
