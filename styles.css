@@ -14,7 +14,7 @@ body {
 
 /* Container styles */
 .container {
-    max-width: 800px;
+    max-width: 1200px; /* Increase width */
     margin: 2rem auto;
     padding: 0 1rem;
 }
@@ -23,7 +23,8 @@ body {
 .tabs {
     display: flex;
     gap: 1px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    backdrop-filter: blur(10px); /* iOS blur effect */
     padding: 0.5rem;
     border-radius: 12px 12px 0 0;
     border: 1px solid #dadce0;
@@ -41,7 +42,7 @@ body {
 }
 
 .tab:hover {
-    background-color: #f1f3f4;
+    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
 }
 
 .tab.active {
@@ -52,7 +53,8 @@ body {
 /* Tab content styles */
 .tab-content {
     display: none;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    backdrop-filter: blur(10px); /* iOS blur effect */
     padding: 1.5rem;
     border-radius: 0 0 12px 12px;
     border: 1px solid #dadce0;
@@ -72,6 +74,8 @@ textarea {
     margin-bottom: 1rem;
     font-size: 0.875rem;
     resize: vertical;
+    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    backdrop-filter: blur(10px); /* iOS blur effect */
 }
 
 textarea:focus {
@@ -81,18 +85,19 @@ textarea:focus {
 
 /* Button styles */
 button {
-    background-color: #007aff;
-    color: white;
-    border: none;
+    background-color: #ffffff; /* White buttons */
+    color: #007aff;
+    border: 1px solid #dadce0;
     padding: 0.75rem 1.5rem;
     border-radius: 24px;
     cursor: pointer;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 button:hover {
-    background-color: #005bb5;
+    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    color: #005bb5;
 }
 
 button:disabled {
@@ -109,6 +114,8 @@ button:disabled {
     margin-bottom: 1.5rem;
     padding: 1rem;
     border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    backdrop-filter: blur(10px); /* iOS blur effect */
 }
 
 /* Header with button styles */
@@ -125,10 +132,10 @@ button:disabled {
     font-weight: 500;
 }
 
-.found { background-color: #e6f4ea; }
-.not-found { background-color: #fce8e6; }
-.warning { background-color: #fff3e0; }
-.duplicates { background-color: #e8eaf6; }
+.found { background-color: rgba(230, 244, 234, 0.8); /* iOS-like blur background */ }
+.not-found { background-color: rgba(252, 232, 230, 0.8); /* iOS-like blur background */ }
+.warning { background-color: rgba(255, 243, 224, 0.8); /* iOS-like blur background */ }
+.duplicates { background-color: rgba(232, 234, 246, 0.8); /* iOS-like blur background */ }
 
 /* Columns container styles */
 .columns-container {
@@ -142,10 +149,13 @@ button:disabled {
 .column {
     flex: 1;
     min-width: 200px;
-    max-width: calc(33.33% - 0.67rem);
-    background-color: rgba(255, 255, 255, 0.1);
+    max-width: calc(25% - 0.67rem); /* Adjust width to accommodate more columns */
+    background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
+    backdrop-filter: blur(10px); /* iOS blur effect */
     border-radius: 12px;
     padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Transaction list styles */
@@ -155,26 +165,35 @@ button:disabled {
     white-space: pre-wrap;
     line-height: 1.5;
     max-height: 100px; /* Limit height to show a few transactions */
-    overflow: hidden; /* Hide scrollbars */
+    overflow-y: auto; /* Enable vertical scrolling */
     padding: 0.5rem;
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
+    flex: 1;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for Internet Explorer and Edge */
+}
+
+/* Hide scrollbar for WebKit browsers */
+.transaction-list::-webkit-scrollbar {
+    display: none;
 }
 
 /* Copy button styles */
 .copy-button {
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     color: #007aff;
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
-    border: 1px solid #007aff;
-    margin-bottom: 0.5rem;
-    width: 100%;
-    border-radius: 24px;
+    border: 1px solid #dadce0;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    align-self: center;
 }
 
 .copy-button:hover {
-    background-color: rgba(0, 122, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
 }
 
 .result-section.not-found .transaction-list {
