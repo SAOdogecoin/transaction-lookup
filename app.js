@@ -193,9 +193,6 @@ async function searchTransactions() {
                 <div class="result-section found">
                     <div class="header-with-button">
                         <h3>Reimbursed (${found.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${found.join('\n')}', this)">
-                            Copy All
-                        </button>
                     </div>
                     ${createColumnLayout(found)}
                 </div>
@@ -208,9 +205,6 @@ async function searchTransactions() {
                 <div class="result-section not-found">
                     <div class="header-with-button">
                         <h3>Not Reimbursed (${notFound.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${notFound.join('\n')}', this)">
-                            Copy All
-                        </button>
                     </div>
                     ${createColumnLayout(notFound)}
                 </div>
