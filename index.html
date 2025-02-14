@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
     <script src="app.js" defer></script>
+    <!-- Add Roboto Mono font for better monospace display -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body onload="initializeApp()">
     <div class="container">
@@ -17,7 +19,11 @@
         </div>
         
         <div id="searchTab" class="tab-content active">
-            <textarea id="searchIds" placeholder="Enter transaction IDs to search (one per line)"></textarea>
+            <textarea 
+                id="searchIds" 
+                placeholder="Enter transaction IDs to search (one per line)"
+                spellcheck="false"
+            ></textarea>
             <div class="status-text" id="searchStatus"></div>
             <div class="progress-bar" id="searchProgress">
                 <div class="progress-bar-fill"></div>
@@ -27,7 +33,11 @@
         </div>
         
         <div id="addTab" class="tab-content">
-            <textarea id="newIds" placeholder="Enter transaction IDs to add (one per line)"></textarea>
+            <textarea 
+                id="newIds" 
+                placeholder="Enter transaction IDs to add (one per line)"
+                spellcheck="false"
+            ></textarea>
             <div class="status-text" id="addStatus"></div>
             <div class="progress-bar" id="addProgress">
                 <div class="progress-bar-fill"></div>
