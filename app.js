@@ -67,29 +67,60 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text, button) {
-    // First escape any special characters
-    const textToCopy = text.replace(/&/g, '&amp;')
-                          .replace(/</g, '&lt;')
-                          .replace(/>/g, '&gt;')
-                          .replace(/"/g, '&quot;')
-                          .replace(/'/g, '&#039;');
-    
-    // Create temporary textarea
-    const textarea = document.createElement('textarea');
-    // Decode the HTML entities for actual copying
-    textarea.value = textToCopy.replace(/&amp;/g, '&')
-                               .replace(/&lt;/g, '<')
-                               .replace(/&gt;/g, '>')
-                               .replace(/&quot;/g, '"')
-                               .replace(/&#039;/g, "'");
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = 0;
-    document.body.appendChild(textarea);
-    
+    // Use the modern clipboard API if available
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                // Visual feedback
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy:', err);
+                fallbackCopyToClipboard(text, button);
+            });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyToClipboard(text, button);
+    }
+}
+
+function fallbackCopyToClipboard(text, button) {
     try {
-        textarea.select();
-        const success = document.execCommand('copy');
-        if (!success) throw new Error('Copy command failed');
+        // Create temporary textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        
+        // Make the textarea invisible but keep it in the viewport
+        textarea.style.position = 'fixed';
+        textarea.style.top = '0';
+        textarea.style.left = '0';
+        textarea.style.opacity = '0';
+        
+        document.body.appendChild(textarea);
+        
+        // For iOS devices
+        textarea.contentEditable = true;
+        textarea.readOnly = false;
+        
+        // Select the text
+        const range = document.createRange();
+        range.selectNodeContents(textarea);
+        
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        textarea.setSelectionRange(0, textarea.value.length);
+        
+        const successful = document.execCommand('copy');
+        if (!successful) throw new Error('Copy command failed');
         
         // Visual feedback
         const originalText = button.textContent;
@@ -101,11 +132,10 @@ function copyToClipboard(text, button) {
             button.disabled = false;
         }, 2000);
         
-    } catch (err) {
-        console.error('Failed to copy:', err);
-        alert('Failed to copy to clipboard');
-    } finally {
         document.body.removeChild(textarea);
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        alert('Failed to copy to clipboard');
     }
 }
 
