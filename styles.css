@@ -151,8 +151,8 @@ button:disabled {
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    min-width: 200px; /* Ensure columns are at least 200px wide */
-    max-width: 200px; /* Ensure columns are at least 200px wide */
+    min-width: 200px;
+    max-width: 200px;
 }
 
 /* Transaction list styles */
