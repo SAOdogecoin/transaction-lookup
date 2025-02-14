@@ -67,14 +67,29 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text, button) {
+    // First escape any special characters
+    const textToCopy = text.replace(/&/g, '&amp;')
+                          .replace(/</g, '&lt;')
+                          .replace(/>/g, '&gt;')
+                          .replace(/"/g, '&quot;')
+                          .replace(/'/g, '&#039;');
+    
     // Create temporary textarea
     const textarea = document.createElement('textarea');
-    textarea.value = text;
+    // Decode the HTML entities for actual copying
+    textarea.value = textToCopy.replace(/&amp;/g, '&')
+                               .replace(/&lt;/g, '<')
+                               .replace(/&gt;/g, '>')
+                               .replace(/&quot;/g, '"')
+                               .replace(/&#039;/g, "'");
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = 0;
     document.body.appendChild(textarea);
     
     try {
         textarea.select();
-        document.execCommand('copy');
+        const success = document.execCommand('copy');
+        if (!success) throw new Error('Copy command failed');
         
         // Visual feedback
         const originalText = button.textContent;
@@ -98,7 +113,7 @@ function createColumnLayout(transactions) {
     const columns = chunkArray(transactions, COLUMN_SIZE);
     return `
         <div class="columns-container">
-            ${columns.map(column => `
+            ${columns.map((column, index) => `
                 <div class="column">
                     <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
                         Copy Column
@@ -188,8 +203,8 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
-        // Add Reimbursed (found) results section
-        if (found.length) {
+        // Display Reimbursed results (green background)
+        if (found.length > 0) {
             resultsHtml += `
                 <div class="result-section found">
                     <div class="header-with-button">
@@ -203,8 +218,8 @@ async function searchTransactions() {
             `;
         }
 
-        // Add Not Reimbursed section
-        if (notFound.length) {
+        // Display Not Reimbursed results (red background)
+        if (notFound.length > 0) {
             resultsHtml += `
                 <div class="result-section not-found">
                     <div class="header-with-button">
@@ -214,15 +229,6 @@ async function searchTransactions() {
                         </button>
                     </div>
                     ${createColumnLayout(notFound)}
-                </div>
-            `;
-        }
-
-        // Show empty state if no results
-        if (!found.length && !notFound.length) {
-            resultsHtml += `
-                <div class="result-section warning">
-                    <h3>No transactions found</h3>
                 </div>
             `;
         }
