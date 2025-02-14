@@ -112,6 +112,23 @@ function createColumnLayout(transactions, isNotReimbursed) {
     `;
 }
 
+async function processInBatches(items, processBatch, updateProgressCallback) {
+    const batches = chunkArray(items, BATCH_SIZE);
+    let results = [];
+    let processed = 0;
+
+    for (const batch of batches) {
+        const batchResults = await processBatch(batch);
+        results = results.concat(batchResults);
+        
+        processed += batch.length;
+        const progress = (processed / items.length) * 100;
+        updateProgressCallback(progress);
+    }
+
+    return results;
+}
+
 async function searchTransactions() {
     if (!transactionsRef) {
         alert('Database not initialized. Please check your Firebase configuration.');
