@@ -14,8 +14,8 @@ body {
 
 /* Container styles */
 .container {
-    max-width: 1200px; /* Increase width */
-    margin: 2rem auto;
+    width: 100%;
+    margin: 0; /* Remove margin */
     padding: 0 1rem;
 }
 
