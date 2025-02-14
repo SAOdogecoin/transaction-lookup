@@ -164,9 +164,11 @@ button:disabled {
     background-color: rgba(26, 115, 232, 0.04);
 }
 
-.header-with-button .copy-button {
-    width: auto;
-    margin-bottom: 0;
+/* Add this CSS to your stylesheet */
+.result-section.not-found .transaction-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
 }
 
 .progress-bar {
