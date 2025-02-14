@@ -1,21 +1,21 @@
 let db;
 let transactionsRef;
 const BATCH_SIZE = 100;
-const COLUMN_SIZE = 10; // Updated to 10 columns for Not Reimbursed
+const COLUMN_SIZE_NOT_REIMBURSED = 25; // 25 transactions per column for Not Reimbursed
 let authorized = false;
 
 async function initializeApp() {
     try {
-const firebaseConfig = {
-  apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
-  authDomain: "rms-checker.firebaseapp.com",
-  databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
-  projectId: "rms-checker",
-  storageBucket: "rms-checker.firebasestorage.app",
-  messagingSenderId: "766008840687",
-  appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
-  measurementId: "G-RDLTJ6D0GJ"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
+            authDomain: "rms-checker.firebaseapp.com",
+            databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
+            projectId: "rms-checker",
+            storageBucket: "rms-checker.firebasestorage.app",
+            messagingSenderId: "766008840687",
+            appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+            measurementId: "G-RDLTJ6D0GJ"
+        };
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -43,92 +43,11 @@ function updateConnectionStatus(connected) {
     });
 }
 
-function validatePIN(pin) {
-    const correctPIN = "1234"; // Replace this with a secure method to store and validate PINs
-    if (pin === correctPIN) {
-        authorized = true;
-        alert("Access granted");
-    } else {
-        authorized = false;
-        alert("Access denied");
-    }
-}
-
-function requestPIN(callback) {
-    const pin = document.getElementById('databasePin').value;
-    validatePIN(pin);
-    if (authorized) {
-        callback();
-    }
-}
-
-async function showDatabaseContents() {
-    if (!authorized) {
-        alert("Not authorized to view database contents");
-        return;
-    }
-
-    const contents = await transactionsRef.once('value').then(snapshot => snapshot.val());
-    console.log(contents); // For debugging purposes, remove in production
-
-    const results = document.getElementById('databaseResults');
-    results.innerHTML = '<h3>Database Contents</h3>';
-
-    Object.keys(contents).forEach(id => {
-        const transaction = contents[id];
-        results.innerHTML += `
-            <div class="transaction-entry">
-                <input type="checkbox" class="select-transaction" data-id="${id}">
-                <span>${id}: ${JSON.stringify(transaction)}</span>
-            </div>
-        `;
-    });
-}
-
-function editSelectedTransactions() {
-    if (!authorized) {
-        alert("Not authorized to edit transactions");
-        return;
-    }
-
-    const selectedCheckboxes = document.querySelectorAll('.select-transaction:checked');
-    selectedCheckboxes.forEach(async checkbox => {
-        const id = checkbox.dataset.id;
-        const newData = {}; // Collect new data from the user
-        await transactionsRef.child(id).update(newData)
-            .then(() => alert(`Transaction ${id} updated successfully`))
-            .catch(error => alert(`Failed to update transaction ${id}: ${error.message}`));
-    });
-}
-
-function deleteSelectedTransactions() {
-    if (!authorized) {
-        alert("Not authorized to delete transactions");
-        return;
-    }
-
-    const selectedCheckboxes = document.querySelectorAll('.select-transaction:checked');
-    selectedCheckboxes.forEach(async checkbox => {
-        const id = checkbox.dataset.id;
-        await transactionsRef.child(id).remove()
-            .then(() => alert(`Transaction ${id} deleted successfully`))
-            .catch(error => alert(`Failed to delete transaction ${id}: ${error.message}`));
-    });
-}
-
-function chunkArray(array, size) {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += size) {
-        chunks.push(array.slice(i, i + size));
-    }
-    return chunks;
-}
-
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
-    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
@@ -251,34 +170,8 @@ async function addTransactions() {
     }
 }
 
-function copyToClipboard(text, button) {
-    // Create a temporary textarea element
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    textarea.select();
-    
-    try {
-        document.execCommand('copy');
-        // Visual feedback
-        const originalText = button.textContent;
-        button.textContent = 'Copied!';
-        button.disabled = true;
-        
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.disabled = false;
-        }, 2000);
-    } catch (err) {
-        console.error('Failed to copy:', err);
-        alert('Failed to copy text');
-    } finally {
-        document.body.removeChild(textarea);
-    }
-}
-
 function createColumnLayout(transactions, isNotReimbursed) {
-    const columns = chunkArray(transactions, COLUMN_SIZE);
+    const columns = chunkArray(transactions, isNotReimbursed ? COLUMN_SIZE_NOT_REIMBURSED : transactions.length);
     return `
         <div class="columns-container">
             ${columns.map(column => `
@@ -376,7 +269,7 @@ async function searchTransactions() {
         // Display Not Reimbursed results at the top
         if (notFound.length > 0) {
             resultsHtml += `
-                <div class="result-section">
+                <div class="result-section not-found">
                     <div class="header-with-button">
                         <h3>Not Reimbursed (${notFound.length})</h3>
                     </div>
@@ -410,6 +303,40 @@ async function searchTransactions() {
         updateProgress(progressBar, statusText, 0, 'Error occurred while searching');
     } finally {
         searchButton.disabled = false;
+    }
+}
+
+function chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+}
+
+function copyToClipboard(text, button) {
+    // Create a temporary textarea element
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
+        // Visual feedback
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy text');
+    } finally {
+        document.body.removeChild(textarea);
     }
 }
 
