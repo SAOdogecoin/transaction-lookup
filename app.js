@@ -67,60 +67,14 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text, button) {
-    // Use the modern clipboard API if available
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text)
-            .then(() => {
-                // Visual feedback
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                button.disabled = true;
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Failed to copy:', err);
-                fallbackCopyToClipboard(text, button);
-            });
-    } else {
-        // Fallback for older browsers
-        fallbackCopyToClipboard(text, button);
-    }
-}
-
-function fallbackCopyToClipboard(text, button) {
+    // Create temporary textarea
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    
     try {
-        // Create temporary textarea
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        
-        // Make the textarea invisible but keep it in the viewport
-        textarea.style.position = 'fixed';
-        textarea.style.top = '0';
-        textarea.style.left = '0';
-        textarea.style.opacity = '0';
-        
-        document.body.appendChild(textarea);
-        
-        // For iOS devices
-        textarea.contentEditable = true;
-        textarea.readOnly = false;
-        
-        // Select the text
-        const range = document.createRange();
-        range.selectNodeContents(textarea);
-        
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        textarea.setSelectionRange(0, textarea.value.length);
-        
-        const successful = document.execCommand('copy');
-        if (!successful) throw new Error('Copy command failed');
+        textarea.select();
+        document.execCommand('copy');
         
         // Visual feedback
         const originalText = button.textContent;
@@ -132,22 +86,25 @@ function fallbackCopyToClipboard(text, button) {
             button.disabled = false;
         }, 2000);
         
-        document.body.removeChild(textarea);
     } catch (err) {
-        console.error('Fallback copy failed:', err);
+        console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard');
+    } finally {
+        document.body.removeChild(textarea);
     }
 }
 
-function createColumnLayout(transactions) {
+function createColumnLayout(transactions, isNotReimbursed = false) {
     const columns = chunkArray(transactions, COLUMN_SIZE);
     return `
         <div class="columns-container">
             ${columns.map((column, index) => `
                 <div class="column">
-                    <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
-                        Copy Column
-                    </button>
+                    ${isNotReimbursed ? `
+                        <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
+                            Copy Column
+                        </button>
+                    ` : ''}
                     <div class="transaction-list">
                         ${column.join('\n')}
                     </div>
@@ -157,6 +114,28 @@ function createColumnLayout(transactions) {
     `;
 }
 
+// Modified results display section in searchTransactions function
+if (found.length > 0) {
+    resultsHtml += `
+        <div class="result-section found">
+            <div class="header-with-button">
+                <h3>Reimbursed (${found.length})</h3>
+            </div>
+            ${createColumnLayout(found, false)}
+        </div>
+    `;
+}
+
+if (notFound.length > 0) {
+    resultsHtml += `
+        <div class="result-section not-found">
+            <div class="header-with-button">
+                <h3>Not Reimbursed (${notFound.length})</h3>
+            </div>
+            ${createColumnLayout(notFound, true)}
+        </div>
+    `;
+}
 async function processInBatches(items, processBatch, updateProgressCallback) {
     const batches = chunkArray(items, BATCH_SIZE);
     let results = [];
