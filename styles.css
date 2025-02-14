@@ -136,10 +136,11 @@ button:disabled {
 
 /* Columns container styles */
 .columns-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ensure columns are at least 200px wide */
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem; /* Consistent small margin */
     margin-top: 1rem;
+    justify-content: flex-start; /* Align columns to the right */
 }
 
 /* Column styles */
@@ -150,7 +151,8 @@ button:disabled {
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    aspect-ratio: 1 / 1; /* Keep columns square-shaped */
+    min-width: 200px; /* Ensure columns are at least 200px wide */
+    max-width: 200px; /* Ensure columns are at least 200px wide */
 }
 
 /* Transaction list styles */
