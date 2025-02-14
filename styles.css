@@ -137,16 +137,13 @@ button:disabled {
 /* Columns container styles */
 .columns-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.1rem; /* Small margin to compress columns */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ensure columns are at least 200px wide */
+    gap: 0.5rem; /* Consistent small margin */
     margin-top: 1rem;
 }
 
 /* Column styles */
 .column {
-    flex: 1;
-    min-width: 100px;
-    max-width: calc(100% / 10 - 0.1rem); 
     background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
     backdrop-filter: blur(10px); /* iOS blur effect */
     border-radius: 12px;
@@ -195,12 +192,6 @@ button:disabled {
     color: #005bb5;
 }
 
-.result-section.not-found .transaction-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 10px;
-}
-
 /* Progress bar styles */
 .progress-bar {
     width: 100%;
@@ -229,7 +220,7 @@ button:disabled {
 
 @media (max-width: 768px) {
     .column {
-        max-width: calc(50% - 0.1rem);
+        max-width: calc(50% - 0.5rem);
     }
 }
 
