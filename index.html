@@ -44,6 +44,16 @@
             </div>
             <button id="addButton" onclick="addTransactions()">Add Transactions</button>
             <div class="results" id="addResults"></div>
+
+            <!-- New section for viewing and deleting transactions -->
+            <button onclick="displayTransactions()">View Transactions</button>
+            <div class="results" id="transactionResults"></div>
+            <textarea 
+                id="deleteIds" 
+                placeholder="Enter transaction IDs to delete (one per line)"
+                spellcheck="false"
+            ></textarea>
+            <button onclick="deleteTransactions()">Delete Transactions</button>
         </div>
     </div>
 </body>
