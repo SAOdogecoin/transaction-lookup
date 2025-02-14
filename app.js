@@ -42,6 +42,62 @@ function updateConnectionStatus(connected) {
     });
 }
 
+let authorized = false;
+
+function validatePIN(pin) {
+    const correctPIN = "1234"; // Replace this with a secure method to store and validate PINs
+    if (pin === correctPIN) {
+        authorized = true;
+        alert("Access granted");
+    } else {
+        authorized = false;
+        alert("Access denied");
+    }
+}
+
+function requestPIN(callback) {
+    const pin = prompt("Enter your 4-digit PIN:");
+    validatePIN(pin);
+    if (authorized) {
+        callback();
+    }
+}
+
+function editTransaction(id, newData) {
+    if (!authorized) {
+        alert("Not authorized to edit transactions");
+        return;
+    }
+    transactionsRef.child(id).update(newData)
+        .then(() => alert("Transaction updated successfully"))
+        .catch(error => alert("Failed to update transaction: " + error.message));
+}
+
+function deleteTransaction(id) {
+    if (!authorized) {
+        alert("Not authorized to delete transactions");
+        return;
+    }
+    transactionsRef.child(id).remove()
+        .then(() => alert("Transaction deleted successfully"))
+        .catch(error => alert("Failed to delete transaction: " + error.message));
+}
+
+document.getElementById('editButton').addEventListener('click', () => {
+    requestPIN(() => {
+        const id = prompt("Enter transaction ID to edit:");
+        const newData = {}; // Collect new data from the user
+        editTransaction(id, newData);
+    });
+});
+
+document.getElementById('deleteButton').addEventListener('click', () => {
+    requestPIN(() => {
+        const id = prompt("Enter transaction ID to delete:");
+        deleteTransaction(id);
+    });
+});
+
 function chunkArray(array, size) {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
