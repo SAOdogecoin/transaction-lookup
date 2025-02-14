@@ -66,13 +66,32 @@ function updateProgress(progressBar, statusText, progress, message) {
     statusText.textContent = message;
 }
 
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        // Success notification can be added here if needed
-    }).catch(err => {
+function copyToClipboard(text, button) {
+    // Create temporary textarea
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    
+    try {
+        textarea.select();
+        document.execCommand('copy');
+        
+        // Visual feedback
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+        }, 2000);
+        
+    } catch (err) {
         console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard');
-    });
+    } finally {
+        document.body.removeChild(textarea);
+    }
 }
 
 function createColumnLayout(transactions) {
@@ -81,7 +100,7 @@ function createColumnLayout(transactions) {
         <div class="columns-container">
             ${columns.map(column => `
                 <div class="column">
-                    <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}')">
+                    <button class="copy-button" onclick="copyToClipboard('${column.join('\n')}', this)">
                         Copy Column
                     </button>
                     <div class="transaction-list">
@@ -169,23 +188,41 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
+        // Add Reimbursed (found) results section
+        if (found.length) {
+            resultsHtml += `
+                <div class="result-section found">
+                    <div class="header-with-button">
+                        <h3>Reimbursed (${found.length})</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${found.join('\n')}', this)">
+                            Copy All
+                        </button>
+                    </div>
+                    ${createColumnLayout(found)}
+                </div>
+            `;
+        }
+
+        // Add Not Reimbursed section
         if (notFound.length) {
             resultsHtml += `
                 <div class="result-section not-found">
                     <div class="header-with-button">
                         <h3>Not Reimbursed (${notFound.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${notFound.join('\n')}')">
+                        <button class="copy-button" onclick="copyToClipboard('${notFound.join('\n')}', this)">
                             Copy All
                         </button>
                     </div>
                     ${createColumnLayout(notFound)}
                 </div>
             `;
-        } else {
+        }
+
+        // Show empty state if no results
+        if (!found.length && !notFound.length) {
             resultsHtml += `
-                <div class="result-section not-found">
-                    <h3>Not Reimbursed (0)</h3>
-                    <div class="transaction-list">None</div>
+                <div class="result-section warning">
+                    <h3>No transactions found</h3>
                 </div>
             `;
         }
@@ -203,143 +240,6 @@ async function searchTransactions() {
         updateProgress(progressBar, statusText, 0, 'Error occurred while searching');
     } finally {
         searchButton.disabled = false;
-    }
-}
-
-async function addTransactions() {
-    if (!transactionsRef) {
-        alert('Database not initialized. Please check your Firebase configuration.');
-        return;
-    }
-
-    const addButton = document.getElementById('addButton');
-    const progressBar = document.getElementById('addProgress');
-    const statusText = document.getElementById('addStatus');
-    const results = document.getElementById('addResults');
-    
-    try {
-        addButton.disabled = true;
-        results.innerHTML = '';
-
-        const ids = [...new Set(document.getElementById('newIds').value
-            .trim()
-            .split('\n')
-            .map(id => id.trim())
-            .filter(id => id))];
-
-        if (!ids.length) {
-            updateProgress(progressBar, statusText, 0, 'Please enter transaction IDs');
-            return;
-        }
-
-        updateProgress(progressBar, statusText, 0, `Processing ${ids.length} transactions...`);
-
-        const newTransactions = [];
-        const duplicates = [];
-
-        await processInBatches(
-            ids,
-            async (batch) => {
-                const checkPromises = batch.map(async (id) => {
-                    const snapshot = await transactionsRef.child(id).once('value');
-                    if (snapshot.exists()) {
-                        duplicates.push(id);
-                    } else {
-                        newTransactions.push(id);
-                    }
-                });
-                await Promise.all(checkPromises);
-                return batch;
-            },
-            (progress) => {
-                updateProgress(
-                    progressBar,
-                    statusText,
-                    progress / 2,
-                    `Checking existing transactions... ${Math.round(progress)}%`
-                );
-            }
-        );
-
-        if (newTransactions.length > 0) {
-            await processInBatches(
-                newTransactions,
-                async (batch) => {
-                    const updates = {};
-                    batch.forEach(id => {
-                        updates[id] = {
-                            timestamp: firebase.database.ServerValue.TIMESTAMP,
-                            added: new Date().toISOString()
-                        };
-                    });
-                    await transactionsRef.update(updates);
-                    return batch;
-                },
-                (progress) => {
-                    const overallProgress = 50 + (progress / 2);
-                    updateProgress(
-                        progressBar,
-                        statusText,
-                        overallProgress,
-                        `Adding new transactions... ${Math.round(progress)}%`
-                    );
-                }
-            );
-        }
-
-        let resultsHtml = '';
-
-        if (newTransactions.length > 0) {
-            resultsHtml += `
-                <div class="result-section found">
-                    <div class="header-with-button">
-                        <h3>Successfully Added (${newTransactions.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${newTransactions.join('\n')}')">
-                            Copy All
-                        </button>
-                    </div>
-                    ${createColumnLayout(newTransactions)}
-                </div>
-            `;
-        }
-
-        if (duplicates.length > 0) {
-            resultsHtml += `
-                <div class="result-section duplicates">
-                    <div class="header-with-button">
-                        <h3>Skipped - Already Exists (${duplicates.length})</h3>
-                        <button class="copy-button" onclick="copyToClipboard('${duplicates.join('\n')}')">
-                            Copy All
-                        </button>
-                    </div>
-                    ${createColumnLayout(duplicates)}
-                </div>
-            `;
-        }
-
-        results.innerHTML = resultsHtml;
-        
-        if (newTransactions.length > 0) {
-            document.getElementById('newIds').value = '';
-        }
-
-        updateProgress(
-            progressBar,
-            statusText,
-            100,
-            `Completed: Added ${newTransactions.length} transactions, ${duplicates.length} duplicates skipped`
-        );
-
-    } catch (error) {
-        console.error('Add error:', error);
-        results.innerHTML = `
-            <div class="result-section not-found">
-                <h3>Error adding transactions: ${error.message}</h3>
-            </div>
-        `;
-        updateProgress(progressBar, statusText, 0, 'Error occurred while adding transactions');
-    } finally {
-        addButton.disabled = false;
     }
 }
 
