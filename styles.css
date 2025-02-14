@@ -1,4 +1,24 @@
 /* General styles */
+:root {
+    --background-color: #ffffff;
+    --text-color: #202124;
+    --primary-color: #007aff;
+    --secondary-color: #5f6368;
+    --border-color: #dadce0;
+    --hover-background-color: rgba(255, 255, 255, 0.9);
+    --blur-background: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] {
+    --background-color: #202124;
+    --text-color: #e8eaed;
+    --primary-color: #8ab4f8;
+    --secondary-color: #9aa0a6;
+    --border-color: #5f6368;
+    --hover-background-color: rgba(255, 255, 255, 0.1);
+    --blur-background: rgba(32, 33, 36, 0.8);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -7,34 +27,32 @@
 }
 
 body {
-    background-color: #ffffff;
-    color: #202124;
+    background-color: var(--background-color);
+    color: var(--text-color);
     line-height: 1.5;
 }
 
-/* Container styles */
 .container {
     width: 100%;
-    margin: 20px 0; /* Add margin on top and bottom */
+    margin: 20px 0;
     padding: 0 1rem;
 }
 
-/* Tabs styles */
 .tabs {
     display: flex;
     gap: 1px;
-    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
-    backdrop-filter: blur(10px); /* iOS blur effect */
+    background: var(--blur-background);
+    backdrop-filter: blur(10px);
     padding: 0.5rem;
     border-radius: 12px 12px 0 0;
-    border: 1px solid #dadce0;
+    border: 1px solid var(--border-color);
     border-bottom: none;
 }
 
 .tab {
     padding: 0.75rem 1.5rem;
     cursor: pointer;
-    color: #5f6368;
+    color: var(--secondary-color);
     font-size: 0.875rem;
     font-weight: 500;
     border-radius: 12px;
@@ -42,53 +60,50 @@ body {
 }
 
 .tab:hover {
-    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    background-color: var(--hover-background-color);
     transform: scale(1.05);
 }
 
 .tab.active {
-    color: #007aff;
-    border-bottom: 2px solid #007aff;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
 }
 
-/* Tab content styles */
 .tab-content {
     display: none;
-    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
-    backdrop-filter: blur(10px); /* iOS blur effect */
+    background: var(--blur-background);
+    backdrop-filter: blur(10px);
     padding: 1.5rem;
     border-radius: 0 0 12px 12px;
-    border: 1px solid #dadce0;
+    border: 1px solid var(--border-color);
 }
 
 .tab-content.active {
     display: block;
 }
 
-/* Textarea styles */
 textarea {
     width: 100%;
     min-height: 120px;
     padding: 0.75rem;
-    border: 1px solid #dadce0;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     margin-bottom: 1rem;
     font-size: 0.875rem;
     resize: vertical;
-    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
-    backdrop-filter: blur(10px); /* iOS blur effect */
+    background: var(--blur-background);
+    backdrop-filter: blur(10px);
 }
 
 textarea:focus {
     outline: none;
-    border-color: #007aff;
+    border-color: var(--primary-color);
 }
 
-/* Button styles */
 button {
-    background-color: #ffffff; /* White buttons */
-    color: #007aff;
-    border: 1px solid #dadce0;
+    background-color: #ffffff;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
     padding: 0.75rem 1.5rem;
     border-radius: 24px;
     cursor: pointer;
@@ -97,16 +112,15 @@ button {
 }
 
 button:hover {
-    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    background-color: var(--hover-background-color);
     color: #005bb5;
 }
 
 button:disabled {
-    background-color: #dadce0;
+    background-color: var(--border-color);
     cursor: not-allowed;
 }
 
-/* Results styles */
 .results {
     margin-top: 1.5rem;
 }
@@ -115,12 +129,11 @@ button:disabled {
     margin-bottom: 1.5rem;
     padding: 1rem;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
-    backdrop-filter: blur(10px); /* iOS blur effect */
-    border: 1px solid #dadce0;
+    background: var(--blur-background);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
 }
 
-/* Header with button styles */
 .header-with-button {
     display: flex;
     justify-content: space-between;
@@ -129,24 +142,22 @@ button:disabled {
 }
 
 .result-section h3 {
-    color: #202124;
+    color: var(--text-color);
     font-size: 1rem;
     font-weight: 500;
 }
 
-/* Columns container styles */
 .columns-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem; /* Consistent small margin */
+    gap: 0.5rem;
     margin-top: 1rem;
-    justify-content: flex-start; /* Align columns to the right */
+    justify-content: flex-start;
 }
 
-/* Column styles */
 .column {
-    background-color: rgba(255, 255, 255, 0.8); /* iOS-like blur background */
-    backdrop-filter: blur(10px); /* iOS blur effect */
+    background-color: var(--blur-background);
+    backdrop-filter: blur(10px);
     border-radius: 12px;
     padding: 0.75rem;
     display: flex;
@@ -155,33 +166,30 @@ button:disabled {
     max-width: 200px;
 }
 
-/* Transaction list styles */
 .transaction-list {
     font-family: 'Roboto Mono', monospace;
     font-size: 0.875rem;
     white-space: pre-wrap;
     line-height: 1.5;
-    max-height: 200px; /* Adjusted to ensure the transaction window is visible */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 200px;
+    overflow-y: auto;
     padding: 0.5rem;
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
     flex: 1;
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar for Internet Explorer and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Hide scrollbar for WebKit browsers */
 .transaction-list::-webkit-scrollbar {
     display: none;
 }
 
-/* Copy button styles */
 .copy-button {
-    background-color: #ffffff; /* White buttons */
-    color: #007aff;
-    border: 1px solid #dadce0;
-    padding: 0.75rem 1.5rem; /* Same size as the search button */
+    background-color: #ffffff;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
     border-radius: 24px;
     cursor: pointer;
     font-weight: 500;
@@ -190,11 +198,10 @@ button:disabled {
 }
 
 .copy-button:hover {
-    background-color: rgba(255, 255, 255, 0.9); /* iOS-like hover effect */
+    background-color: var(--hover-background-color);
     color: #005bb5;
 }
 
-/* Progress bar styles */
 .progress-bar {
     width: 100%;
     height: 4px;
@@ -207,15 +214,14 @@ button:disabled {
 
 .progress-bar-fill {
     height: 100%;
-    background-color: #007aff;
+    background-color: var(--primary-color);
     width: 0%;
     transition: width 0.3s ease;
 }
 
-/* Status text styles */
 .status-text {
     font-size: 0.875rem;
-    color: #5f6368;
+    color: var(--secondary-color);
     margin-bottom: 1rem;
     display: none;
 }
