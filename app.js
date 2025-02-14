@@ -59,9 +59,17 @@ function updateProgress(progressBar, statusText, progress, message) {
 }
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
+    // First, create a temporary textarea to handle multi-line text properly
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';  // Prevent scrolling to bottom
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
         // Visual feedback for copy action
-        const activeButton = document.activeElement;
+        const activeButton = document.querySelector('.copy-button:focus') || document.activeElement;
         if (activeButton && activeButton.classList.contains('copy-button')) {
             const originalText = activeButton.textContent;
             activeButton.textContent = 'Copied!';
@@ -69,10 +77,42 @@ function copyToClipboard(text) {
                 activeButton.textContent = originalText;
             }, 2000);
         }
-    }).catch(err => {
+    } catch (err) {
         console.error('Failed to copy:', err);
         alert('Failed to copy to clipboard');
-    });
+    } finally {
+        document.body.removeChild(textarea);
+    }
+}
+
+// Modified results HTML generation in searchTransactions function
+if (notFound.length) {
+    resultsHtml += `
+        <div class="result-section not-found">
+            <div class="header-with-button">
+                <h3>Not Reimbursed (${notFound.length})</h3>
+                <button class="copy-button" onclick="copyToClipboard(\`${notFound.join('\n')}\`)">
+                    Copy All
+                </button>
+            </div>
+            <div class="transaction-list">${notFound.join('\n')}</div>
+        </div>
+    `;
+}
+
+// Modified results HTML generation in addTransactions function
+if (duplicates.length > 0) {
+    resultsHtml += `
+        <div class="result-section duplicates">
+            <div class="header-with-button">
+                <h3>Skipped - Already Exists (${duplicates.length})</h3>
+                <button class="copy-button" onclick="copyToClipboard(\`${duplicates.join('\n')}\`)">
+                    Copy All
+                </button>
+            </div>
+            <div class="transaction-list">${duplicates.join('\n')}</div>
+        </div>
+    `;
 }
 
 function processInBatches(items, processBatch, updateProgressCallback) {
