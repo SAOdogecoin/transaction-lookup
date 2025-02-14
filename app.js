@@ -34,6 +34,19 @@ async function initializeApp() {
     }
 }
 
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const targetTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", targetTheme);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const themeToggleButton = document.createElement("button");
+    themeToggleButton.textContent = "Toggle Theme";
+    themeToggleButton.onclick = toggleTheme;
+    document.body.appendChild(themeToggleButton);
+});
+
 function updateConnectionStatus(connected) {
     const statusElements = document.querySelectorAll('.status-text');
     statusElements.forEach(element => {
