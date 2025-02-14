@@ -138,7 +138,7 @@ button:hover {
 }
 
 button:disabled {
-    background-color: var(--border-color);
+    background-color: var (--border-color);
     cursor: not-allowed;
 }
 
