@@ -7,14 +7,14 @@ let authorized = false;
 async function initializeApp() {
     try {
         const firebaseConfig = {
-            apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
-            authDomain: "rms-checker.firebaseapp.com",
-            databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
-            projectId: "rms-checker",
-            storageBucket: "rms-checker.firebasestorage.app",
-            messagingSenderId: "766008840687",
-            appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
-            measurementId: "G-RDLTJ6D0GJ"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         if (!firebase.apps.length) {
@@ -183,6 +183,45 @@ async function addTransactions() {
     }
 }
 
+async function displayTransactions() {
+    const transactions = await fetchTransactions();
+    const results = document.getElementById('transactionResults');
+    results.innerHTML = Object.keys(transactions).map(id => `
+        <div class="transaction-item" data-id="${id}">
+            ${id}
+            <button onclick="deleteTransaction('${id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+async function fetchTransactions() {
+    const snapshot = await transactionsRef.once('value');
+    return snapshot.val();
+}
+
+async function deleteTransaction(id) {
+    await transactionsRef.child(id).remove();
+    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
+}
+
+async function deleteTransactions() {
+    const ids = [...new Set(document.getElementById('deleteIds').value
+        .trim()
+        .split('\n')
+        .map(id => id.trim())
+        .filter(id => id))];
+
+    if (!ids.length) {
+        alert('Please enter transaction IDs to delete');
+        return;
+    }
+
+    const promises = ids.map(id => deleteTransaction(id));
+    await Promise.all(promises);
+
+    alert('Transactions deleted successfully');
+}
+
 function createColumnLayout(transactions, isNotReimbursed) {
     const columns = chunkArray(transactions, isNotReimbursed ? COLUMN_SIZE_NOT_REIMBURSED : transactions.length);
     return `
@@ -218,38 +257,6 @@ async function processInBatches(items, processBatch, updateProgressCallback) {
     }
 
     return results;
-}
-
-async function fetchTransactions() {
-    const snapshot = await transactionsRef.once('value');
-    return snapshot.val();
-}
-
-async function deleteTransaction(id) {
-    await transactionsRef.child(id).remove();
-    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
-
-    async function displayTransactions() {
-    const transactions = await fetchTransactions();
-    const results = document.getElementById('transactionResults');
-    results.innerHTML = Object.keys(transactions).map(id => `
-        <div class="transaction-item" data-id="${id}">
-            ${id}
-            <button onclick="deleteTransaction('${id}')">Delete</button>
-        </div>
-    `).join('');
-}
-
-async function deleteTransaction(id) {
-    await transactionsRef.child(id).remove();
-    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
-}
-    
-document.addEventListener('DOMContentLoaded', () => {
-    displayTransactions();
-});
-
-    
 }
 
 async function searchTransactions() {
