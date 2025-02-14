@@ -220,6 +220,38 @@ async function processInBatches(items, processBatch, updateProgressCallback) {
     return results;
 }
 
+async function fetchTransactions() {
+    const snapshot = await transactionsRef.once('value');
+    return snapshot.val();
+}
+
+async function deleteTransaction(id) {
+    await transactionsRef.child(id).remove();
+    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
+
+    async function displayTransactions() {
+    const transactions = await fetchTransactions();
+    const results = document.getElementById('transactionResults');
+    results.innerHTML = Object.keys(transactions).map(id => `
+        <div class="transaction-item" data-id="${id}">
+            ${id}
+            <button onclick="deleteTransaction('${id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+async function deleteTransaction(id) {
+    await transactionsRef.child(id).remove();
+    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
+}
+    
+document.addEventListener('DOMContentLoaded', () => {
+    displayTransactions();
+});
+
+    
+}
+
 async function searchTransactions() {
     if (!transactionsRef) {
         alert('Database not initialized. Please check your Firebase configuration.');
