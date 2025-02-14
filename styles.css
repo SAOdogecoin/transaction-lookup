@@ -97,11 +97,28 @@ textarea {
     resize: vertical;
     background: var(--blur-background);
     backdrop-filter: blur(10px);
+    color: var(--text-color);
 }
 
 textarea:focus {
     outline: none;
     border-color: var(--primary-color);
+}
+
+/* Modern scrollbar styles */
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: var(--blur-background);
+    border-radius: 10px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    border: 2px solid var(--blur-background);
 }
 
 button {
