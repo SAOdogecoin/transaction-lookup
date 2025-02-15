@@ -377,6 +377,19 @@ async function searchTransactions() {
     }
 }
 
+async function deleteTransaction(id) {
+    await transactionsRef.child(id).remove();
+}
+
+function createColumnLayout(ids, isNotReimbursed) {
+    const columns = chunkArray(ids, COLUMN_SIZE_NOT_REIMBURSED);
+    return columns.map(column => `
+        <div class="column">
+            ${column.map(id => `<div>${id}</div>`).join('')}
+        </div>
+    `).join('');
+}
+
 function chunkArray(array, size) {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
