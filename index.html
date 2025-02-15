@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
     <script src="app.js" defer></script>
-    <!-- Add Roboto Mono font for better monospace display -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body onload="initializeApp()">
@@ -19,7 +18,7 @@
                 <button class="tab" onclick="switchTab('add')">
                     <span>+</span> Add Transactions
                 </button>
-                <button onclick="deleteTransactions()" class="tab">
+                <button class="tab" onclick="switchTab('delete')">
                     <span>X</span> Delete Transactions
                 </button>
             </div>
@@ -51,13 +50,20 @@
             </div>
             <button id="addButton" onclick="addTransactions()">Add Transactions</button>
             <div class="results" id="addResults"></div>
+        </div>
 
-            <!-- Delete Transactions Input -->
+        <div id="deleteTab" class="tab-content">
             <textarea 
                 id="deleteIds" 
                 placeholder="Enter transaction IDs to delete (one per line)"
                 spellcheck="false"
             ></textarea>
+            <div class="status-text" id="deleteStatus"></div>
+            <div class="progress-bar" id="deleteProgress">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <button id="deleteButton" onclick="deleteTransactions()">Delete Transactions</button>
+            <div class="results" id="deleteResults"></div>
         </div>
     </div>
 </body>
