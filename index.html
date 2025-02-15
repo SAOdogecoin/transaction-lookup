@@ -15,7 +15,14 @@
     <div class="container">
         <div class="tabs" style="display: flex; justify-content: space-between;">
             <div class="tab active" onclick="switchTab('search')">Search</div>
-            <button class="tab" onclick="switchTab('add')">Add Transactions</button>
+            <div style="display: flex; gap: 1rem;">
+                <button class="tab" onclick="switchTab('add')">
+                    <span>+</span> Add Transactions
+                </button>
+                <button onclick="deleteTransactions()" class="tab">
+                    <span>X</span> Delete Transactions
+                </button>
+            </div>
         </div>
         
         <div id="searchTab" class="tab-content active">
@@ -45,15 +52,12 @@
             <button id="addButton" onclick="addTransactions()">Add Transactions</button>
             <div class="results" id="addResults"></div>
 
-            <!-- New section for viewing and deleting transactions -->
-            <button onclick="displayTransactions()">View Transactions</button>
-            <div class="results" id="transactionResults"></div>
+            <!-- Delete Transactions Input -->
             <textarea 
                 id="deleteIds" 
                 placeholder="Enter transaction IDs to delete (one per line)"
                 spellcheck="false"
             ></textarea>
-            <button onclick="deleteTransactions()">Delete Transactions</button>
         </div>
     </div>
 </body>
