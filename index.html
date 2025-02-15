@@ -13,9 +13,9 @@
 </head>
 <body onload="initializeApp()">
     <div class="container">
-        <div class="tabs">
+        <div class="tabs" style="display: flex; justify-content: space-between;">
             <div class="tab active" onclick="switchTab('search')">Search</div>
-            <div class="tab" onclick="switchTab('add')">Add Transactions</div>
+            <button class="tab" onclick="switchTab('add')">Add Transactions</button>
         </div>
         
         <div id="searchTab" class="tab-content active">
