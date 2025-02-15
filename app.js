@@ -4,27 +4,27 @@ const BATCH_SIZE = 100;
 const COLUMN_SIZE_NOT_REIMBURSED = 25; // 25 transactions per column for Not Reimbursed
 let authorized = false;
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
-            authDomain: "rms-checker.firebaseapp.com",
-            databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
-            projectId: "rms-checker",
-            storageBucket: "rms-checker.firebasestorage.app",
-            messagingSenderId: "766008840687",
-            appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
-            measurementId: "G-RDLTJ6D0GJ"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
+  authDomain: "rms-checker.firebaseapp.com",
+  databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
+  projectId: "rms-checker",
+  storageBucket: "rms-checker.firebasestorage.app",
+  messagingSenderId: "766008840687",
+  appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+  measurementId: "G-RDLTJ6D0GJ"
+};
 
 async function initializeApp() {
     try {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-
+        
         db = firebase.database();
         transactionsRef = db.ref('transactions');
         db.goOnline();
-
+        
         db.ref('.info/connected').on('value', (snap) => {
             updateConnectionStatus(snap.val());
         });
@@ -59,36 +59,17 @@ function updateConnectionStatus(connected) {
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    if (tabName === 'search') {
-        document.querySelector('.tab:nth-child(1)').classList.add('active');
-    } else {
-        document.querySelector(`.tab-icons .${tabName}-button`).classList.add('active');
-    }
     
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
 function updateProgress(progressBar, statusText, progress, message) {
     progressBar.style.display = progress > 0 && progress < 100 ? 'block' : 'none';
     progressBar.querySelector('.progress-bar-fill').style.width = `${progress}%`;
-
+    
     statusText.style.display = 'block';
     statusText.textContent = message;
-}
-
-async function processInBatches(items, processBatch, updateProgress) {
-    const totalItems = items.length;
-    const batchSize = BATCH_SIZE;
-
-    for (let i = 0; i < totalItems; i += batchSize) {
-        const batch = items.slice(i, i + batchSize);
-        await processBatch(batch);
-        if (updateProgress) {
-            const progress = ((i + batchSize) / totalItems) * 100;
-            updateProgress(Math.min(progress, 100));
-        }
-    }
 }
 
 async function addTransactions() {
@@ -135,7 +116,7 @@ async function addTransactions() {
                             }
                         })
                 );
-
+                
                 await Promise.all(promises);
             },
             (progress) => {
@@ -166,7 +147,7 @@ async function addTransactions() {
                     const promises = batch.map(id => 
                         transactionsRef.child(id).set({ timestamp: firebase.database.ServerValue.TIMESTAMP })
                     );
-
+                    
                     await Promise.all(promises);
                 },
                 (progress) => {
@@ -202,9 +183,31 @@ async function addTransactions() {
     }
 }
 
+async function displayTransactions() {
+    const transactions = await fetchTransactions();
+    const results = document.getElementById('transactionResults');
+    results.innerHTML = Object.keys(transactions).map(id => `
+        <div class="transaction-item" data-id="${id}">
+            ${id}
+            <button onclick="deleteTransaction('${id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+async function fetchTransactions() {
+    const snapshot = await transactionsRef.once('value');
+    return snapshot.val();
+}
+
 async function deleteTransactions() {
-    if (!transactionsRef) {
-        alert('Database not initialized. Please check your Firebase configuration.');
+    const ids = [...new Set(document.getElementById('deleteIds').value
+        .trim()
+        .split('\n')
+        .map(id => id.trim())
+        .filter(id => id))];
+
+    if (!ids.length) {
+        alert('Please enter transaction IDs to delete');
         return;
     }
 
@@ -216,17 +219,6 @@ async function deleteTransactions() {
     try {
         deleteButton.disabled = true;
         results.innerHTML = '';
-
-        const ids = [...new Set(document.getElementById('deleteIds').value
-            .trim()
-            .split('\n')
-            .map(id => id.trim())
-            .filter(id => id))];
-
-        if (!ids.length) {
-            updateProgress(progressBar, statusText, 0, 'Please enter transaction IDs');
-            return;
-        }
 
         updateProgress(progressBar, statusText, 0, `Deleting ${ids.length} transactions...`);
 
@@ -268,17 +260,50 @@ async function deleteTransactions() {
     }
 }
 
-let autoSearchEnabled = false;
-
-function toggleAutoSearch() {
-    autoSearchEnabled = document.getElementById('autoSearchRadio').checked;
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
+    document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
-document.getElementById('searchIds').addEventListener('input', () => {
-    if (autoSearchEnabled) {
-        searchTransactions();
+function createColumnLayout(transactions, isNotReimbursed) {
+    const columns = chunkArray(transactions, isNotReimbursed ? COLUMN_SIZE_NOT_REIMBURSED : transactions.length);
+    return `
+        <div class="columns-container">
+            ${columns.map(column => `
+                <div class="column">
+                    ${isNotReimbursed ? `
+                        <button class="copy-button" onclick="copyToClipboard('${column.join('\\n')}', this)">
+                            Copy Column
+                        </button>
+                    ` : ''}
+                    <div class="transaction-list">
+                        ${column.join('\n')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+async function processInBatches(items, processBatch, updateProgressCallback) {
+    const batches = chunkArray(items, BATCH_SIZE);
+    let results = [];
+    let processed = 0;
+
+    for (const batch of batches) {
+        const batchResults = await processBatch(batch);
+        results = results.concat(batchResults);
+        
+        processed += batch.length;
+        const progress = (processed / items.length) * 100;
+        updateProgressCallback(progress);
     }
-});
+
+    return results;
+}
 
 async function searchTransactions() {
     if (!transactionsRef) {
@@ -294,7 +319,7 @@ async function searchTransactions() {
     try {
         searchButton.disabled = true;
         results.innerHTML = '';
-
+        
         const ids = [...new Set(document.getElementById('searchIds').value
             .trim()
             .split('\n')
@@ -318,13 +343,13 @@ async function searchTransactions() {
                     transactionsRef.child(id).once('value')
                         .then(snapshot => ({id, exists: snapshot.exists()}))
                 );
-
+                
                 const batchResults = await Promise.all(promises);
                 batchResults.forEach(({id, exists}) => {
                     if (exists) found.push(id);
                     else notFound.push(id);
                 });
-
+                
                 return batchResults;
             },
             (progress) => {
@@ -339,6 +364,7 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
+        // Display Not Reimbursed results at the top
         if (notFound.length > 0) {
             resultsHtml += `
                 <div class="result-section not-found">
@@ -350,6 +376,7 @@ async function searchTransactions() {
             `;
         }
 
+        // Display Reimbursed results
         if (found.length > 0) {
             resultsHtml += `
                 <div class="result-section">
@@ -377,19 +404,6 @@ async function searchTransactions() {
     }
 }
 
-async function deleteTransaction(id) {
-    await transactionsRef.child(id).remove();
-}
-
-function createColumnLayout(ids, isNotReimbursed) {
-    const columns = chunkArray(ids, COLUMN_SIZE_NOT_REIMBURSED);
-    return columns.map(column => `
-        <div class="column">
-            ${column.map(id => `<div>${id}</div>`).join('')}
-        </div>
-    `).join('');
-}
-
 function chunkArray(array, size) {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -404,14 +418,14 @@ function copyToClipboard(text, button) {
     textarea.value = text;
     document.body.appendChild(textarea);
     textarea.select();
-
+    
     try {
         document.execCommand('copy');
         // Visual feedback
         const originalText = button.textContent;
         button.textContent = 'Copied!';
         button.disabled = true;
-
+        
         setTimeout(() => {
             button.textContent = originalText;
             button.disabled = false;
@@ -446,19 +460,3 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
-function openAddTransactionWindow() {
-    document.getElementById('addTransactionWindow').style.display = 'block';
-}
-
-function closeAddTransactionWindow() {
-    document.getElementById('addTransactionWindow').style.display = 'none';
-}
-
-function openDeleteTransactionWindow() {
-    document.getElementById('deleteTransactionWindow').style.display = 'block';
-}
-
-function closeDeleteTransactionWindow() {
-    document.getElementById('deleteTransactionWindow').style.display = 'none';
-}
