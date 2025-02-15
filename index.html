@@ -16,15 +16,9 @@
             <div class="tab active" onclick="switchTab('search')">
                 <span class="tab-title">Search</span>
             </div>
-            <div class="tab" onclick="switchTab('add')">
-                <span class="tab-title">Add Transactions</span>
-            </div>
-            <div class="tab" onclick="switchTab('delete')">
-                <span class="tab-title">Delete Transactions</span>
-            </div>
             <div class="tab-icons">
-                <button class="circle-button add-button" onclick="openAddTransactionWindow()">+</button>
-                <button class="circle-button delete-button" onclick="openDeleteTransactionWindow()">x</button>
+                <button class="circle-button add-button" onclick="switchTab('add')">+</button>
+                <button class="circle-button delete-button" onclick="switchTab('delete')">x</button>
             </div>
         </div>
         
