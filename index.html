@@ -15,6 +15,8 @@
         <div class="tabs" style="display: flex; justify-content: space-between;">
             <div class="tab active">
                 <span class="tab-title">Search</span>
+                <button class="circle-button add-button" onclick="openAddTransactionWindow()">+</button>
+                <button class="circle-button delete-button" onclick="openDeleteTransactionWindow()">x</button>
             </div>
         </div>
         
@@ -30,6 +32,36 @@
             </div>
             <button id="searchButton" onclick="searchTransactions()">Search</button>
             <div class="results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Add Transaction Window -->
+    <div id="addTransactionWindow" class="modal green-theme">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddTransactionWindow()">&times;</span>
+            <h2>Add Transactions</h2>
+            <textarea id="newIds" placeholder="Enter transaction IDs to add (one per line)" spellcheck="false"></textarea>
+            <div class="status-text add-status" id="addStatus"></div>
+            <div class="progress-bar" id="addProgress">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <button id="addButton" onclick="addTransactions()">Add Transactions</button>
+            <div class="results" id="addResults"></div>
+        </div>
+    </div>
+
+    <!-- Delete Transaction Window -->
+    <div id="deleteTransactionWindow" class="modal red-theme">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteTransactionWindow()">&times;</span>
+            <h2>Delete Transactions</h2>
+            <textarea id="deleteIds" placeholder="Enter transaction IDs to delete (one per line)" spellcheck="false"></textarea>
+            <div class="status-text delete-status" id="deleteStatus"></div>
+            <div class="progress-bar" id="deleteProgress">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <button id="deleteButton" onclick="deleteTransactions()">Delete Transactions</button>
+            <div class="results" id="deleteResults"></div>
         </div>
     </div>
 </body>
