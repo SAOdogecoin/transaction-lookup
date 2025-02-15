@@ -4,6 +4,8 @@
     --text-color: #202124;
     --primary-color: #007aff;
     --secondary-color: #5f6368;
+    --add-color: #28a745;
+    --delete-color: #dc3545;
     --border-color: #dadce0;
     --hover-background-color: rgba(255, 255, 255, 0.9);
     --blur-background: rgba(255, 255, 255, 0.8);
@@ -16,6 +18,8 @@
     --text-color: #e8eaed;
     --primary-color: #8ab4f8;
     --secondary-color: #9aa0a6;
+    --add-color: #28a745;
+    --delete-color: #dc3545;
     --border-color: #5f6368;
     --hover-background-color: rgba(255, 255, 255, 0.1);
     --blur-background: rgba(32, 33, 36, 0.8);
@@ -130,6 +134,14 @@ button {
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s, color 0.2s;
+}
+
+button.add-button {
+    color: var(--add-color);
+}
+
+button.delete-button {
+    color: var(--delete-color);
 }
 
 button:hover {
@@ -267,6 +279,14 @@ button.tab.active {
     display: none;
 }
 
+.add-status {
+    color: var(--add-color);
+}
+
+.delete-status {
+    color: var(--delete-color);
+}
+
 @media (max-width: 768px) {
     .column {
         max-width: calc(50% - 0.5rem);
@@ -286,4 +306,14 @@ button.tab.active {
     .tab {
         padding: 0.5rem 1rem;
     }
+}
+
+/* Search tab icon styling */
+.icon {
+    margin-right: 0.5rem;
+}
+
+.tab-title {
+    font-size: 1.25rem;
+    font-weight: bold;
 }
