@@ -20,9 +20,6 @@
                 <button class="tab" onclick="switchTab('add')">
                     <span class="icon">➕</span> Add Transactions
                 </button>
-                <button class="tab" onclick="switchTab('delete')">
-                    <span class="icon">❌</span> Delete Transactions
-                </button>
             </div>
         </div>
         
@@ -40,7 +37,7 @@
             <div class="results" id="searchResults"></div>
         </div>
         
-        <div id="addTab" class="tab-content">
+        <div id="addTab" class="tab-content add-tab">
             <textarea 
                 id="newIds" 
                 placeholder="Enter transaction IDs to add (one per line)"
@@ -52,20 +49,6 @@
             </div>
             <button id="addButton" class="add-button" onclick="addTransactions()">Add Transactions</button>
             <div class="results" id="addResults"></div>
-        </div>
-
-        <div id="deleteTab" class="tab-content">
-            <textarea 
-                id="deleteIds" 
-                placeholder="Enter transaction IDs to delete (one per line)"
-                spellcheck="false"
-            ></textarea>
-            <div class="status-text delete-status" id="deleteStatus"></div>
-            <div class="progress-bar" id="deleteProgress">
-                <div class="progress-bar-fill"></div>
-            </div>
-            <button id="deleteButton" class="delete-button" onclick="deleteTransactions()">Delete Transactions</button>
-            <div class="results" id="deleteResults"></div>
         </div>
     </div>
 </body>
