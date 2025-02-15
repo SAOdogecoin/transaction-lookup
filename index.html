@@ -13,13 +13,8 @@
 <body onload="initializeApp()">
     <div class="container">
         <div class="tabs" style="display: flex; justify-content: space-between;">
-            <div class="tab active" onclick="switchTab('search')">
-                <span class="icon">🔍</span> <span class="tab-title">Search</span>
-            </div>
-            <div style="display: flex; gap: 1rem;">
-                <button class="tab" onclick="switchTab('add')">
-                    <span class="icon">➕</span> Add Transactions
-                </button>
+            <div class="tab active">
+                <span class="tab-title">Search</span>
             </div>
         </div>
         
@@ -33,22 +28,7 @@
             <div class="progress-bar" id="searchProgress">
                 <div class="progress-bar-fill"></div>
             </div>
-            <button id="searchButton" onclick="searchTransactions()">Search</button>
             <div class="results" id="searchResults"></div>
-        </div>
-        
-        <div id="addTab" class="tab-content add-tab">
-            <textarea 
-                id="newIds" 
-                placeholder="Enter transaction IDs to add (one per line)"
-                spellcheck="false"
-            ></textarea>
-            <div class="status-text add-status" id="addStatus"></div>
-            <div class="progress-bar" id="addProgress">
-                <div class="progress-bar-fill"></div>
-            </div>
-            <button id="addButton" class="add-button" onclick="addTransactions()">Add Transactions</button>
-            <div class="results" id="addResults"></div>
         </div>
     </div>
 </body>
