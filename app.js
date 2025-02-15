@@ -199,11 +199,6 @@ async function fetchTransactions() {
     return snapshot.val();
 }
 
-async function deleteTransaction(id) {
-    await transactionsRef.child(id).remove();
-    document.querySelector(`.transaction-item[data-id="${id}"]`).remove();
-}
-
 async function deleteTransactions() {
     const ids = [...new Set(document.getElementById('deleteIds').value
         .trim()
@@ -216,10 +211,61 @@ async function deleteTransactions() {
         return;
     }
 
-    const promises = ids.map(id => deleteTransaction(id));
-    await Promise.all(promises);
+    const deleteButton = document.getElementById('deleteButton');
+    const progressBar = document.getElementById('deleteProgress');
+    const statusText = document.getElementById('deleteStatus');
+    const results = document.getElementById('deleteResults');
 
-    alert('Transactions deleted successfully');
+    try {
+        deleteButton.disabled = true;
+        results.innerHTML = '';
+
+        updateProgress(progressBar, statusText, 0, `Deleting ${ids.length} transactions...`);
+
+        await processInBatches(
+            ids,
+            async (batch) => {
+                const promises = batch.map(id => deleteTransaction(id));
+                await Promise.all(promises);
+            },
+            (progress) => {
+                updateProgress(
+                    progressBar, 
+                    statusText, 
+                    progress, 
+                    `Deleting... ${Math.round(progress)}%`
+                );
+            }
+        );
+
+        results.innerHTML = `
+            <div class="result-section">
+                <h3>Deleted Transactions (${ids.length})</h3>
+                <div class="transaction-list">${ids.join('<br>')}</div>
+            </div>
+        `;
+
+        updateProgress(progressBar, statusText, 100, `Completed deleting ${ids.length} transactions`);
+
+    } catch (error) {
+        console.error('Delete error:', error);
+        results.innerHTML = `
+            <div class="result-section">
+                <h3>Error deleting transactions: ${error.message}</h3>
+            </div>
+        `;
+        updateProgress(progressBar, statusText, 0, 'Error occurred while deleting');
+    } finally {
+        deleteButton.disabled = false;
+    }
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
+    document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
 function createColumnLayout(transactions, isNotReimbursed) {
