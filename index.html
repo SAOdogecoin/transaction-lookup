@@ -13,12 +13,8 @@
 <body onload="initializeApp()">
     <div class="container">
         <div class="tabs" style="display: flex; justify-content: space-between;">
-            <div class="tab active" onclick="switchTab('search')">
+            <div class="tab active">
                 <span class="tab-title">Search</span>
-            </div>
-            <div class="tab-icons">
-                <button class="circle-button add-button" onclick="switchTab('add')">+</button>
-                <button class="circle-button delete-button" onclick="switchTab('delete')">x</button>
             </div>
         </div>
         
@@ -32,33 +28,8 @@
             <div class="progress-bar" id="searchProgress">
                 <div class="progress-bar-fill"></div>
             </div>
-            <div style="display: flex; align-items: center;">
-                <button id="searchButton" onclick="searchTransactions()">Search</button>
-                <label style="margin-left: 10px;">
-                    <input type="radio" id="autoSearchRadio" onchange="toggleAutoSearch()"> Auto
-                </label>
-            </div>
+            <button id="searchButton" onclick="searchTransactions()">Search</button>
             <div class="results" id="searchResults"></div>
-        </div>
-
-        <div id="addTab" class="tab-content">
-            <textarea id="newIds" placeholder="Enter transaction IDs to add (one per line)" spellcheck="false"></textarea>
-            <div class="status-text add-status" id="addStatus"></div>
-            <div class="progress-bar" id="addProgress">
-                <div class="progress-bar-fill"></div>
-            </div>
-            <button id="addButton" onclick="addTransactions()">Add Transactions</button>
-            <div class="results" id="addResults"></div>
-        </div>
-
-        <div id="deleteTab" class="tab-content">
-            <textarea id="deleteIds" placeholder="Enter transaction IDs to delete (one per line)" spellcheck="false"></textarea>
-            <div class="status-text delete-status" id="deleteStatus"></div>
-            <div class="progress-bar" id="deleteProgress">
-                <div class="progress-bar-fill"></div>
-            </div>
-            <button id="deleteButton" onclick="deleteTransactions()">Delete Transactions</button>
-            <div class="results" id="deleteResults"></div>
         </div>
     </div>
 </body>
