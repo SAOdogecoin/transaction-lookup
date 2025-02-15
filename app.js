@@ -77,6 +77,20 @@ function updateProgress(progressBar, statusText, progress, message) {
     statusText.textContent = message;
 }
 
+async function processInBatches(items, processBatch, updateProgress) {
+    const totalItems = items.length;
+    const batchSize = BATCH_SIZE;
+
+    for (let i = 0; i < totalItems; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        await processBatch(batch);
+        if (updateProgress) {
+            const progress = ((i + batchSize) / totalItems) * 100;
+            updateProgress(Math.min(progress, 100));
+        }
+    }
+}
+
 async function addTransactions() {
     if (!transactionsRef) {
         alert('Database not initialized. Please check your Firebase configuration.');
