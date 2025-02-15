@@ -20,11 +20,11 @@ async function initializeApp() {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        
+
         db = firebase.database();
         transactionsRef = db.ref('transactions');
         db.goOnline();
-        
+
         db.ref('.info/connected').on('value', (snap) => {
             updateConnectionStatus(snap.val());
         });
@@ -59,7 +59,7 @@ function updateConnectionStatus(connected) {
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
+
     document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
@@ -67,7 +67,7 @@ function switchTab(tabName) {
 function updateProgress(progressBar, statusText, progress, message) {
     progressBar.style.display = progress > 0 && progress < 100 ? 'block' : 'none';
     progressBar.querySelector('.progress-bar-fill').style.width = `${progress}%`;
-    
+
     statusText.style.display = 'block';
     statusText.textContent = message;
 }
@@ -116,7 +116,7 @@ async function addTransactions() {
                             }
                         })
                 );
-                
+
                 await Promise.all(promises);
             },
             (progress) => {
@@ -147,7 +147,7 @@ async function addTransactions() {
                     const promises = batch.map(id => 
                         transactionsRef.child(id).set({ timestamp: firebase.database.ServerValue.TIMESTAMP })
                     );
-                    
+
                     await Promise.all(promises);
                 },
                 (progress) => {
@@ -183,31 +183,9 @@ async function addTransactions() {
     }
 }
 
-async function displayTransactions() {
-    const transactions = await fetchTransactions();
-    const results = document.getElementById('transactionResults');
-    results.innerHTML = Object.keys(transactions).map(id => `
-        <div class="transaction-item" data-id="${id}">
-            ${id}
-            <button onclick="deleteTransaction('${id}')">Delete</button>
-        </div>
-    `).join('');
-}
-
-async function fetchTransactions() {
-    const snapshot = await transactionsRef.once('value');
-    return snapshot.val();
-}
-
 async function deleteTransactions() {
-    const ids = [...new Set(document.getElementById('deleteIds').value
-        .trim()
-        .split('\n')
-        .map(id => id.trim())
-        .filter(id => id))];
-
-    if (!ids.length) {
-        alert('Please enter transaction IDs to delete');
+    if (!transactionsRef) {
+        alert('Database not initialized. Please check your Firebase configuration.');
         return;
     }
 
@@ -219,6 +197,17 @@ async function deleteTransactions() {
     try {
         deleteButton.disabled = true;
         results.innerHTML = '';
+
+        const ids = [...new Set(document.getElementById('deleteIds').value
+            .trim()
+            .split('\n')
+            .map(id => id.trim())
+            .filter(id => id))];
+
+        if (!ids.length) {
+            updateProgress(progressBar, statusText, 0, 'Please enter transaction IDs');
+            return;
+        }
 
         updateProgress(progressBar, statusText, 0, `Deleting ${ids.length} transactions...`);
 
@@ -263,7 +252,7 @@ async function deleteTransactions() {
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
+
     document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
@@ -296,7 +285,7 @@ async function processInBatches(items, processBatch, updateProgressCallback) {
     for (const batch of batches) {
         const batchResults = await processBatch(batch);
         results = results.concat(batchResults);
-        
+
         processed += batch.length;
         const progress = (processed / items.length) * 100;
         updateProgressCallback(progress);
@@ -319,7 +308,7 @@ async function searchTransactions() {
     try {
         searchButton.disabled = true;
         results.innerHTML = '';
-        
+
         const ids = [...new Set(document.getElementById('searchIds').value
             .trim()
             .split('\n')
@@ -343,13 +332,13 @@ async function searchTransactions() {
                     transactionsRef.child(id).once('value')
                         .then(snapshot => ({id, exists: snapshot.exists()}))
                 );
-                
+
                 const batchResults = await Promise.all(promises);
                 batchResults.forEach(({id, exists}) => {
                     if (exists) found.push(id);
                     else notFound.push(id);
                 });
-                
+
                 return batchResults;
             },
             (progress) => {
@@ -418,14 +407,14 @@ function copyToClipboard(text, button) {
     textarea.value = text;
     document.body.appendChild(textarea);
     textarea.select();
-    
+
     try {
         document.execCommand('copy');
         // Visual feedback
         const originalText = button.textContent;
         button.textContent = 'Copied!';
         button.disabled = true;
-        
+
         setTimeout(() => {
             button.textContent = originalText;
             button.disabled = false;
@@ -460,3 +449,19 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+function openAddTransactionWindow() {
+    document.getElementById('addTransactionWindow').style.display = 'block';
+}
+
+function closeAddTransactionWindow() {
+    document.getElementById('addTransactionWindow').style.display = 'none';
+}
+
+function openDeleteTransactionWindow() {
+    document.getElementById('deleteTransactionWindow').style.display = 'block';
+}
+
+function closeDeleteTransactionWindow() {
+    document.getElementById('deleteTransactionWindow').style.display = 'none';
+}
