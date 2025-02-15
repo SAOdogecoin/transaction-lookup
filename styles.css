@@ -340,3 +340,11 @@ button.tab.active {
     background-color: var(--hover-background-color);
     color: var(--button-hover-color);
 }
+
+#addTab {
+    background-color: var(--add-background-color);
+}
+
+#deleteTab {
+    background-color: var(--delete-color);
+}
