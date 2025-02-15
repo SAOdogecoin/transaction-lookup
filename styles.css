@@ -142,6 +142,26 @@ button:disabled {
     cursor: not-allowed;
 }
 
+button.tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+button.tab:hover {
+    background-color: var(--hover-background-color);
+    transform: scale(1.05);
+}
+
+button.tab.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
 .results {
     margin-top: 1.5rem;
 }
