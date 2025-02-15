@@ -5,14 +5,7 @@ const COLUMN_SIZE_NOT_REIMBURSED = 25; // 25 transactions per column for Not Rei
 let authorized = false;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
-  authDomain: "rms-checker.firebaseapp.com",
-  databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
-  projectId: "rms-checker",
-  storageBucket: "rms-checker.firebasestorage.app",
-  messagingSenderId: "766008840687",
-  appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
-  measurementId: "G-RDLTJ6D0GJ"
+  // Firebase configuration
 };
 
 async function initializeApp() {
@@ -60,7 +53,7 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : '2'})`).classList.add('active');
+    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
@@ -247,51 +240,6 @@ async function deleteTransactions() {
     } finally {
         deleteButton.disabled = false;
     }
-}
-
-function switchTab(tabName) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
-    document.getElementById(`${tabName}Tab`).classList.add('active');
-}
-
-function createColumnLayout(transactions, isNotReimbursed) {
-    const columns = chunkArray(transactions, isNotReimbursed ? COLUMN_SIZE_NOT_REIMBURSED : transactions.length);
-    return `
-        <div class="columns-container">
-            ${columns.map(column => `
-                <div class="column">
-                    ${isNotReimbursed ? `
-                        <button class="copy-button" onclick="copyToClipboard('${column.join('\\n')}', this)">
-                            Copy Column
-                        </button>
-                    ` : ''}
-                    <div class="transaction-list">
-                        ${column.join('\n')}
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-async function processInBatches(items, processBatch, updateProgressCallback) {
-    const batches = chunkArray(items, BATCH_SIZE);
-    let results = [];
-    let processed = 0;
-
-    for (const batch of batches) {
-        const batchResults = await processBatch(batch);
-        results = results.concat(batchResults);
-
-        processed += batch.length;
-        const progress = (processed / items.length) * 100;
-        updateProgressCallback(progress);
-    }
-
-    return results;
 }
 
 async function searchTransactions() {
