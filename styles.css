@@ -295,12 +295,12 @@ button.tab.active {
     .column {
         max-width: 100%;
     }
-
+    
     .container {
         margin: 1rem auto;
         padding: 0 0.5rem;
     }
-
+    
     .tab {
         padding: 0.5rem 1rem;
     }
@@ -314,37 +314,4 @@ button.tab.active {
 .tab-title {
     font-size: 1.25rem;
     font-weight: bold;
-}
-
-.circle-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    background-color: var(--button-background);
-    color: var(--primary-color);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.tab-icons {
-    display: flex;
-    gap: 10px;
-}
-
-.circle-button:hover {
-    background-color: var(--hover-background-color);
-    color: var(--button-hover-color);
-}
-
-#addTab {
-    background-color: var(--add-background-color);
-}
-
-#deleteTab {
-    background-color: var(--delete-color);
 }
