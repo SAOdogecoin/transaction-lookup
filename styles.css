@@ -92,10 +92,6 @@ body {
     display: block;
 }
 
-.tab-content.add-tab {
-    background-color: var(--add-background-color); /* Apply green background color */
-}
-
 textarea {
     width: 100%;
     min-height: 120px;
@@ -112,7 +108,7 @@ textarea {
 
 textarea:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--border-color); /* Removed blue outline */
 }
 
 /* Modern scrollbar styles */
