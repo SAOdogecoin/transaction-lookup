@@ -4,9 +4,16 @@ const BATCH_SIZE = 100;
 const COLUMN_SIZE_NOT_REIMBURSED = 25; // 25 transactions per column for Not Reimbursed
 let authorized = false;
 
-const firebaseConfig = {
-  // Firebase configuration
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZX4MEI8UZoYVVpzqfP9abIWQq0UYhJFQ",
+            authDomain: "rms-checker.firebaseapp.com",
+            databaseURL: "https://rms-checker-default-rtdb.firebaseio.com",
+            projectId: "rms-checker",
+            storageBucket: "rms-checker.firebasestorage.app",
+            messagingSenderId: "766008840687",
+            appId: "1:766008840687:web:a6ee57583b102ad2f7e61a",
+            measurementId: "G-RDLTJ6D0GJ"
+        };
 
 async function initializeApp() {
     try {
