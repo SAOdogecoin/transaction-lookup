@@ -295,12 +295,12 @@ button.tab.active {
     .column {
         max-width: 100%;
     }
-    
+
     .container {
         margin: 1rem auto;
         padding: 0 0.5rem;
     }
-    
+
     .tab {
         padding: 0.5rem 1rem;
     }
