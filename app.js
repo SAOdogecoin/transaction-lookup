@@ -254,6 +254,18 @@ async function deleteTransactions() {
     }
 }
 
+let autoSearchEnabled = false;
+
+function toggleAutoSearch() {
+    autoSearchEnabled = document.getElementById('autoSearchRadio').checked;
+}
+
+document.getElementById('searchIds').addEventListener('input', () => {
+    if (autoSearchEnabled) {
+        searchTransactions();
+    }
+});
+
 async function searchTransactions() {
     if (!transactionsRef) {
         alert('Database not initialized. Please check your Firebase configuration.');
@@ -313,7 +325,6 @@ async function searchTransactions() {
 
         let resultsHtml = '';
 
-        // Display Not Reimbursed results at the top
         if (notFound.length > 0) {
             resultsHtml += `
                 <div class="result-section not-found">
@@ -325,7 +336,6 @@ async function searchTransactions() {
             `;
         }
 
-        // Display Reimbursed results
         if (found.length > 0) {
             resultsHtml += `
                 <div class="result-section">
