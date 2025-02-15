@@ -32,7 +32,12 @@
             <div class="progress-bar" id="searchProgress">
                 <div class="progress-bar-fill"></div>
             </div>
-            <button id="searchButton" onclick="searchTransactions()">Search</button>
+            <div style="display: flex; align-items: center;">
+                <button id="searchButton" onclick="searchTransactions()">Search</button>
+                <label style="margin-left: 10px;">
+                    <input type="radio" id="autoSearchRadio" onchange="toggleAutoSearch()"> Auto
+                </label>
+            </div>
             <div class="results" id="searchResults"></div>
         </div>
 
