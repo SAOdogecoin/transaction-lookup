@@ -13,7 +13,9 @@
 <body onload="initializeApp()">
     <div class="container">
         <div class="tabs" style="display: flex; justify-content: space-between;">
-            <div class="tab active" onclick="switchTab('search')">Search</div>
+            <div class="tab active" onclick="switchTab('search')">
+                <span class="icon">🔍</span> <span class="tab-title">Search Transaction IDs</span>
+            </div>
             <div style="display: flex; gap: 1rem;">
                 <button class="tab" onclick="switchTab('add')">
                     <span>+</span> Add Transactions
@@ -44,11 +46,11 @@
                 placeholder="Enter transaction IDs to add (one per line)"
                 spellcheck="false"
             ></textarea>
-            <div class="status-text" id="addStatus"></div>
+            <div class="status-text add-status" id="addStatus"></div>
             <div class="progress-bar" id="addProgress">
                 <div class="progress-bar-fill"></div>
             </div>
-            <button id="addButton" onclick="addTransactions()">Add Transactions</button>
+            <button id="addButton" class="add-button" onclick="addTransactions()">Add Transactions</button>
             <div class="results" id="addResults"></div>
         </div>
 
@@ -58,11 +60,11 @@
                 placeholder="Enter transaction IDs to delete (one per line)"
                 spellcheck="false"
             ></textarea>
-            <div class="status-text" id="deleteStatus"></div>
+            <div class="status-text delete-status" id="deleteStatus"></div>
             <div class="progress-bar" id="deleteProgress">
                 <div class="progress-bar-fill"></div>
             </div>
-            <button id="deleteButton" onclick="deleteTransactions()">Delete Transactions</button>
+            <button id="deleteButton" class="delete-button" onclick="deleteTransactions()">Delete Transactions</button>
             <div class="results" id="deleteResults"></div>
         </div>
     </div>
