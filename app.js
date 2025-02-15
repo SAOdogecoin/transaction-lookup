@@ -60,7 +60,12 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-    document.querySelector(`.tab:nth-child(${tabName === 'search' ? '1' : tabName === 'add' ? '2' : '3'})`).classList.add('active');
+    if (tabName === 'search') {
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
+    } else {
+        document.querySelector(`.tab-icons .${tabName}-button`).classList.add('active');
+    }
+    
     document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
