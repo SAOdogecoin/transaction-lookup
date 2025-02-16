@@ -1,4 +1,7 @@
 /* General styles */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* General styles */
 :root {
     --background-color: #ffffff;
     --text-color: #202124;
@@ -33,7 +36,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
